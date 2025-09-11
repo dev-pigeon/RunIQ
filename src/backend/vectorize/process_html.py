@@ -23,8 +23,11 @@ class HTMLProcessor():
                 paragraphs.append(p.get_text(strip=True))
         return paragraphs
 
+    def get_source_root(self, source):
+        return source[:-4]
+
     def get_output_path(self, output_path_root, source):
-        source_root = source[:-4]
+        source_root = self.get_source_root(source)
         output_path = output_path_root + source_root + "json"
         return output_path
 
@@ -36,6 +39,43 @@ class HTMLProcessor():
         with open(path, "w") as file:
             json.dump(output, file, indent=2, ensure_ascii=False)
 
+    def process_tables(self, soup, table_config, source):
+        tables = soup.select(table_config['table_selector'])
+        results = []
+        for table in tables:
+            table_json = self.process_table(table, table_config, level=source)
+            results.append(table_json)
+
+        return results
+
+    def process_table(self, table, table_config, level):
+        desc = f"{level} training plan"
+        weeks_data = []
+
+        rows = table.select(table_config['row_selector'])
+        for i, row in enumerate(rows):
+            week_number = i + 1
+
+            day_cells = row.select(table_config['day_cells'])
+            days = []
+            for day_cell, day_header in zip(day_cells, table.select(table_config['day_columns_selector'])):
+                day_name = day_header.get_text(strip=True)
+                workout = day_cell.get_text(strip=True)
+                days.append({"day": day_name, "workout": workout})
+
+            weeks_data.append({
+                "week": f"Week {week_number}",
+                "days": days
+            })
+
+        table_json = {
+            "desc": desc,
+            "source_file": level,
+            "weeks": weeks_data
+        }
+
+        return table_json
+
     def process_html_file(self, path):
         ignore_classes = self.config['classes-ignore']
         with open(path, 'r', encoding='utf-8') as f:
@@ -46,12 +86,19 @@ class HTMLProcessor():
             # get the output json information
             source = self.get_source_title(path)
             paragraphs = self.get_paragraphs(soup, ignore_classes)
+            table_jsons = None
+            # get the table
+            if self.config['tables'] is True:
+                table_jsons = self.process_tables(
+                    soup, self.config['table_structure'], self.get_source_root(source)[:-1])
+
             output = {
                 "source": source,
-                "paragraphs": paragraphs
+                "paragraphs": paragraphs,
+                "tables": table_jsons
             }
 
-            # # write to output
+            # write to output
             output_path = self.get_output_path(
                 self.config['output_path_root'], source)
             self.write_json(output, output_path)
