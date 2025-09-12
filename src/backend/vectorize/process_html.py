@@ -18,7 +18,7 @@ class HTMLProcessor():
                 classes = div.get("class", [])
                 if any(ignored_class in c for ignored_class in ignore_classes for c in classes):
                     skip = True
-                    break
+
             if not skip:
                 paragraphs.append(p.get_text(strip=True))
         return paragraphs
@@ -43,12 +43,24 @@ class HTMLProcessor():
         tables = soup.select(table_config['table_selector'])
         results = []
         for table in tables:
-            table_json = self.process_table(table, table_config, level=source)
-            results.append(table_json)
+            # right here is where I should check for valid table id
+            parent_divs = table.find_parents("div")
+            skip = False
+            invalid_ids = table_config['invalid_table_ids']
+            for div in parent_divs:
+                table_id = div.get("id", [])
+                if any(invalid_id in table_id for invalid_id in invalid_ids):
+                    skip = True
+                    break
+
+            if not skip:
+                table_json = self.process_table(
+                    table, table_config, level=source)
+                results.append(table_json)
 
         return results
 
-    def flatten_weeks(self, weeks, table_config):
+    def flatten_weeks(self, weeks):
         flat_weeks = []
         for week in weeks:
             flat_week = week['desc']
@@ -87,7 +99,7 @@ class HTMLProcessor():
                 "desc": week_desc,
             })
 
-        flat_weeks = self.flatten_weeks(weeks_data, table_config)
+        flat_weeks = self.flatten_weeks(weeks_data)
 
         table_json = {
             "desc": desc,
