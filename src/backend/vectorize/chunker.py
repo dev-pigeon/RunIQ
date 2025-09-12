@@ -13,8 +13,16 @@ class Chunker:
         chunks = []
         # chunk the paragraphs then chunk the tables should they exist
         paragraph_chunks = self.chunk_paragraphs(data)
+        table_chunks = []
+        if self.has_tables(data):
+            table_chunks = self.chunk_tables(data)
+
         chunks += paragraph_chunks
-        pass
+        chunks += table_chunks
+        return chunks
+
+    def has_tables(self, data):
+        return "tables" in data
 
     def make_chunk(self, text, chunk_count, source):
         metadata = {
@@ -50,6 +58,16 @@ class Chunker:
 
         return para_chunks
 
+    def chunk_tables(self, data):
+        # for now blindly chunk each flattened week
+        table_chunks = []
+        for table in data['tables']:
+            source = table['source_file']
+            for week in table['weeks']:
+                chunk = self.make_chunk(week, len(table_chunks), source)
+                table_chunks.append(chunk)
+        return table_chunks
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -61,4 +79,5 @@ if __name__ == "__main__":
         data = json.load(file)
 
     chunker = Chunker()
-    chunker.chunk_file(data)
+    chunks = chunker.chunk_file(data)
+    print(chunks)
