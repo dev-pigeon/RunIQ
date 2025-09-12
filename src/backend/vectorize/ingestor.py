@@ -1,4 +1,7 @@
-# get the chroma path and collection from env variables
+import os
+import chromadb  # type: ignore
+
+
 class Ingestor:
     def __init__(self) -> None:
         # get env vars here?
@@ -6,12 +9,14 @@ class Ingestor:
         self.buffer = []
 
     def get_chroma_client(self):
-        # chroma path is env var
-        pass
+        perisitent_chroma_path = os.environ['RUNBOT_CHROMA_PATH']
+        client = chromadb.PersistentClient(path=perisitent_chroma_path)
+        return client
 
     def get_chroma_collection(self, client):
-        # collection name is an env var
-        pass
+        collection_name = os.environ['RUNBOT_CHROMA_COLLECTION']
+        collection = client.get_or_create_collection(name=collection_name)
+        return collection
 
     def process_chunk(self, chunk, collection):
         pass
