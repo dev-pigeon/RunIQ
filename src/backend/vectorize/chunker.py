@@ -25,15 +25,11 @@ class Chunker:
         return "tables" in data
 
     def make_chunk(self, text, chunk_count, source):
-        metadata = {
-            "source": source,
-            "text": text,
-            "chunk_id": f"{source}-{chunk_count}"
-        }
-
         chunk = {
-            "metadata": metadata,
+            "id": f"{source}-{chunk_count}",
+            "metadata": {"source": source},
             "embedding": [],
+            "document": text,
         }
 
         return chunk
