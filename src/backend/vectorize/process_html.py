@@ -48,13 +48,31 @@ class HTMLProcessor():
 
         return results
 
+    def flatten_weeks(self, weeks, table_config):
+        flat_weeks = []
+        for week in weeks:
+            flat_week = week['desc']
+            for day in week['days']:
+                flat_week += day['day'] + ":" + day['workout'] + " \n"
+            flat_weeks.append(flat_week)
+
+        return flat_weeks
+
+    def format_level(self, level):
+        if "_" in level:
+            level = level.replace("_", " ", 1)
+        return level
+
     def process_table(self, table, table_config, level):
-        desc = f"{level} training plan"
+        formatted_level = self.format_level(level)
+        desc = f"{formatted_level} training plan"
         weeks_data = []
 
         rows = table.select(table_config['row_selector'])
         for i, row in enumerate(rows):
             week_number = i + 1
+            week_title = f"Week {week_number}"
+            week_desc = f"{week_title} of training plan for {formatted_level} athlete: \n"
 
             day_cells = row.select(table_config['day_cells'])
             days = []
@@ -64,14 +82,17 @@ class HTMLProcessor():
                 days.append({"day": day_name, "workout": workout})
 
             weeks_data.append({
-                "week": f"Week {week_number}",
-                "days": days
+                "week": week_title,
+                "days": days,
+                "desc": week_desc,
             })
+
+        flat_weeks = self.flatten_weeks(weeks_data, table_config)
 
         table_json = {
             "desc": desc,
             "source_file": level,
-            "weeks": weeks_data
+            "weeks": flat_weeks
         }
 
         return table_json
