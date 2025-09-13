@@ -5,6 +5,7 @@ import argparse
 import chromadb  # type: ignore
 from sentence_transformers import SentenceTransformer  # type: ignore
 from vectorize.vectorizer import Vectorizer
+import util.db as db
 
 
 class Retriever:
@@ -12,19 +13,9 @@ class Retriever:
         self.vectorizer = Vectorizer()
         pass
 
-    def get_chroma_client(self):
-        perisitent_chroma_path = os.environ['RUNBOT_CHROMA_PATH']
-        client = chromadb.PersistentClient(path=perisitent_chroma_path)
-        return client
-
-    def get_chroma_collection(self, client):
-        collection_name = os.environ['RUNBOT_CHROMA_COLLECTION']
-        collection = client.get_or_create_collection(name=collection_name)
-        return collection
-
     def retrieve(self, query_text):
-        client = self.get_chroma_client()
-        collection = self.get_chroma_collection(client)
+        client = db.get_chroma_client()
+        collection = db.get_chroma_collection(client)
         model = SentenceTransformer("all-MiniLM-L6-v2")
         query_embedding = self.vectorizer.embed_text(query_text, model)
         result = collection.query(
