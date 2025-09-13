@@ -20,7 +20,7 @@ class Pipeline:
         # config = json with N processing groups / is a list of objects
         chunker = Chunker()
         ingestor = Ingestor()
-        vectorizer = Vectorizer(ingestor)
+        vectorizer = Vectorizer()
 
         for group in config:
             # process files
@@ -36,7 +36,7 @@ class Pipeline:
                 print(f"Chunking file at {path}")
                 chunks = chunker.chunk_file(data)
                 print(f"Embedding chunks for {path}")
-                vectorizer.embed_and_insert(chunks)
+                vectorizer.embed_and_insert(chunks, ingestor)
 
         pass
 
