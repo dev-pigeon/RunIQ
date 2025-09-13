@@ -27,7 +27,6 @@ class HTMLProcessor():
     def get_output_path(self, source):
         source_root = self.get_source_root(source)
         output_path = self.config['output_path_root'] + source_root + "json"
-        print(output_path)
         return output_path
 
     def get_source_title(self, path):
@@ -111,7 +110,6 @@ class HTMLProcessor():
     def process_html_file(self, path):
         ignore_classes = self.config['classes-ignore']
         with open(path, 'r', encoding='utf-8') as f:
-            print(f"PROCESSING {path}")
             html = f.read()
             soup = BeautifulSoup(html, "html.parser")
 
