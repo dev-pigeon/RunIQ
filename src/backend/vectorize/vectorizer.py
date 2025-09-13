@@ -3,21 +3,20 @@ from sentence_transformers import SentenceTransformer  # type: ignore
 
 
 class Vectorizer:
-    def __init__(self, ingestor: Ingestor) -> None:
-        self.ingestor: Ingestor = ingestor
+    def __init__(self) -> None:
         pass
 
-    def embed_and_insert(self, chunks):
+    def embed_and_insert(self, chunks, ingestor: Ingestor):
         model = SentenceTransformer("all-MiniLM-L6-v2")
-        client = self.ingestor.get_chroma_client()
-        collection = self.ingestor.get_chroma_collection(client)
+        client = ingestor.get_chroma_client()
+        collection = ingestor.get_chroma_collection(client)
 
         for chunk in chunks:
             embedded_chunk = self.vectorize_chunk(chunk, model)
-            self.ingestor.process_chunk(embedded_chunk, collection)
+            ingestor.process_chunk(embedded_chunk, collection)
 
         # flush anything that might still be in the buffer
-        self.ingestor.flush_buffer(collection)
+        ingestor.flush_buffer(collection)
 
     def vectorize_chunk(self, chunk, model):
         embedding = self.embed_text(chunk['document'], model)
