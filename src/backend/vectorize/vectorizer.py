@@ -1,4 +1,5 @@
 from vectorize.ingestor import Ingestor
+import util.db as db
 from sentence_transformers import SentenceTransformer  # type: ignore
 
 
@@ -8,8 +9,8 @@ class Vectorizer:
 
     def embed_and_insert(self, chunks, ingestor: Ingestor):
         model = SentenceTransformer("all-MiniLM-L6-v2")
-        client = ingestor.get_chroma_client()
-        collection = ingestor.get_chroma_collection(client)
+        client = db.get_chroma_client()
+        collection = db.get_chroma_collection(client)
 
         for chunk in chunks:
             embedded_chunk = self.vectorize_chunk(chunk, model)
