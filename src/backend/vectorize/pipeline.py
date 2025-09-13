@@ -1,9 +1,9 @@
 import argparse
 import json
-from process_html import HTMLProcessor
-from chunker import Chunker
-from ingestor import Ingestor
-from vectorizer import Vectorizer
+from vectorize.process_html import HTMLProcessor
+from vectorize.chunker import Chunker
+from vectorize.ingestor import Ingestor
+from vectorize.vectorizer import Vectorizer
 
 
 def open_json(file_path):

@@ -1,4 +1,4 @@
-from ingestor import Ingestor
+from vectorize.ingestor import Ingestor
 from sentence_transformers import SentenceTransformer  # type: ignore
 
 
