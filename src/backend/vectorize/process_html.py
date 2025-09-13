@@ -7,8 +7,6 @@ class HTMLProcessor():
     def __init__(self, config) -> None:
         self.config = config
 
-        pass
-
     def get_paragraphs(self, soup, ignore_classes):
         paragraphs = []
         for p in soup.find_all("p"):
@@ -26,9 +24,10 @@ class HTMLProcessor():
     def get_source_root(self, source):
         return source[:-4]
 
-    def get_output_path(self, output_path_root, source):
+    def get_output_path(self, source):
         source_root = self.get_source_root(source)
-        output_path = output_path_root + source_root + "json"
+        output_path = self.config['output_path_root'] + source_root + "json"
+        print(output_path)
         return output_path
 
     def get_source_title(self, path):
@@ -133,11 +132,11 @@ class HTMLProcessor():
 
             # write to output
             output_path = self.get_output_path(
-                self.config['output_path_root'], source)
+                source)
             self.write_json(output, output_path)
 
     def process_files(self):
-        for path in self.config['paths']:
+        for path in self.config['input_paths']:
             self.process_html_file(path)
 
 
