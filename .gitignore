@@ -1,4 +1,4 @@
 src/backend/venv
-src/backend/util
+src/backend/dev
 src/backend/vectorize/__pycache__
 src/backend/rag/__pycache__
