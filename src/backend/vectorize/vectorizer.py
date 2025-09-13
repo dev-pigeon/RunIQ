@@ -7,7 +7,7 @@ class Vectorizer:
         self.ingestor: Ingestor = ingestor
         pass
 
-    def vectorize_and_insert(self, chunks):
+    def embed_and_insert(self, chunks):
         model = SentenceTransformer("all-MiniLM-L6-v2")
         client = self.ingestor.get_chroma_client()
         collection = self.ingestor.get_chroma_collection(client)
