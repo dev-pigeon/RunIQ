@@ -35,6 +35,7 @@ class Pipeline:
                 data = open_json(path)
                 print(f"Chunking file at {path}")
                 chunks = chunker.chunk_file(data)
+                print(f"Embedding chunks for {path}")
                 vectorizer.embed_and_insert(chunks)
 
         pass
