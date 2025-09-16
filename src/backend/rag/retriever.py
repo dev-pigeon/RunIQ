@@ -18,12 +18,21 @@ class Retriever:
         collection = db.get_chroma_collection(client)
         model = SentenceTransformer("all-MiniLM-L6-v2")
         query_embedding = self.vectorizer.embed_text(query_text, model)
-        result = collection.query(
+        results = collection.query(
             query_embeddings=[query_embedding],
             n_results=3,
         )
 
-        return result['documents']
+        result_text = self.get_result_text(results)
+        return result_text
+
+    def get_result_text(self, results):
+        text = ""
+        documents = results['documents']
+        for doc in documents:
+            text = "\n".join(doc)
+
+        return text
 
 
 if __name__ == "__main__":
