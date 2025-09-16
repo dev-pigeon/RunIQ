@@ -9,11 +9,11 @@ class Generator:
     def generate(self, query_text, context, config_prompt):
         prompt = config_prompt.format(query_text, context)
         response = ollama.generate(model=self.MODEL, prompt=prompt)
-        response_text = self.get_response_text(response)
-        return response_text
+
+        return response['response']
 
     def get_response_text(self, response):
         text = ""
         for chunk in response:
             text += chunk['response']
-        return text
+        return text + "\n\n"
