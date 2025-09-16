@@ -2,3 +2,4 @@ src/backend/venv
 src/backend/dev
 src/backend/vectorize/__pycache__
 src/backend/rag/__pycache__
+src/backend/util/__pycache__

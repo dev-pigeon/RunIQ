@@ -33,4 +33,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     query = args.query
     retriever = Retriever()
-    retriever.retrieve(query)
+    print(retriever.retrieve(query))
