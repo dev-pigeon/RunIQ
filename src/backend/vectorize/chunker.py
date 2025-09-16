@@ -47,10 +47,9 @@ class Chunker:
                 para_chunks.append(chunk)
                 curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
 
-        if len(curr_chunk) > self.CHUNK_OVERLAP:
-            # have some remaining tokens, make a chunk
-            chunk = self.make_chunk(
-                curr_chunk, len(para_chunks), source)
+        chunk = self.make_chunk(
+            curr_chunk, len(para_chunks), source)
+        para_chunks.append(chunk)
 
         return para_chunks
 
