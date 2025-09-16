@@ -14,15 +14,15 @@ class Chunker:
         # chunk the paragraphs then chunk the tables should they exist
         paragraph_chunks = self.chunk_paragraphs(data)
         table_chunks = []
-        if self.has_tables(data):
+        if self.has_key(data, "tables"):
             table_chunks = self.chunk_tables(data)
 
         chunks += paragraph_chunks
         chunks += table_chunks
         return chunks
 
-    def has_tables(self, data):
-        return "tables" in data
+    def has_key(self, data, key):
+        return key in data
 
     def make_chunk(self, text, chunk_count, source):
         chunk = {
@@ -36,20 +36,21 @@ class Chunker:
 
     def chunk_paragraphs(self, data):
         para_chunks = []
-        curr_chunk = ""
-        source = data['source']
-        for para in data['paragraphs']:
-            curr_chunk += para
+        if self.has_key(data, "source") and self.has_key(data, "paragraphs"):
+            curr_chunk = ""
+            source = data['source']
+            for para in data['paragraphs']:
+                curr_chunk += para
 
-            if len(curr_chunk) >= self.MAX_CHUNK_SIZE:
-                chunk = self.make_chunk(
-                    curr_chunk, len(para_chunks), source)
-                para_chunks.append(chunk)
-                curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
+                if len(curr_chunk) >= self.MAX_CHUNK_SIZE:
+                    chunk = self.make_chunk(
+                        curr_chunk, len(para_chunks), source)
+                    para_chunks.append(chunk)
+                    curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
 
-        chunk = self.make_chunk(
-            curr_chunk, len(para_chunks), source)
-        para_chunks.append(chunk)
+            chunk = self.make_chunk(
+                curr_chunk, len(para_chunks), source)
+            para_chunks.append(chunk)
 
         return para_chunks
 

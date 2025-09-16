@@ -1,16 +1,5 @@
 from vectorize.chunker import Chunker
-
-
-def test_has_tables_true():
-    c = Chunker()
-    data = {"tables": [{"fake": "table"}]}
-    assert c.has_tables(data) is True
-
-
-def test_has_tables_false():
-    c = Chunker()
-    data = {"other": [{"not a": "table"}]}
-    assert c.has_tables(data) is False
+import pytest  # type: ignore
 
 
 def test_make_chunk_structure():
@@ -44,3 +33,26 @@ def test_chunk_overlap():
     data = {"paragraphs": ["a"*200, "b"*200], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
     assert chunks[0]["document"][-c.CHUNK_OVERLAP:] == chunks[1]["document"][:c.CHUNK_OVERLAP]
+
+
+def test_has_key_true():
+    c = Chunker()
+    data = {"tables": ["t1"], "source": "tests"}
+    key = "tables"
+    assert c.has_key(data, key) is True
+
+
+def test_has_key_false():
+    c = Chunker()
+    data = {"other": [{"not a": "table"}]}
+    assert c.has_key(data, "tables") is False
+
+
+def test_no_paragraphs():
+    c = Chunker()
+    data = {"tables": ["t1"], "source": "tests"}
+    try:
+        chunks = c.chunk_paragraphs(data)
+        assert len(chunks) == 0
+    except KeyError:
+        pytest.fail("KeyError was unexpectedly raised.")
