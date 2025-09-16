@@ -64,3 +64,9 @@ def test_flatten_weeks(processor):
     flat_week = flat_weeks[0]
     expected = "Week 1 \nMon:5 mile run \nTue:rest \n"
     assert flat_week == expected
+
+
+def test_get_source_title(processor):
+    path = "/thetitle"
+    source_title = processor.get_source_title(path)
+    assert source_title == "thetitle"
