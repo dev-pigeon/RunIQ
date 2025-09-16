@@ -56,3 +56,13 @@ def test_no_paragraphs():
         assert len(chunks) == 0
     except KeyError:
         pytest.fail("KeyError was unexpectedly raised.")
+
+
+def test_chunk_tables_no_tables():
+    c = Chunker()
+    data = {"other": [{"not a": "table"}]}
+    try:
+        data = {"other": [{"not a": "table"}]}
+        c.chunk_tables(data)
+    except KeyError:
+        pytest.fail("KeyError was unexpectedly raised.")
