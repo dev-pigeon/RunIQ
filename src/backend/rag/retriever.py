@@ -1,8 +1,6 @@
 # takes raw query, embeds it, uses the chroma db collection to get relevant chunks
 # returns relevant chunks
-import os
 import argparse
-import chromadb  # type: ignore
 from sentence_transformers import SentenceTransformer  # type: ignore
 from vectorize.vectorizer import Vectorizer
 import util.db as db
