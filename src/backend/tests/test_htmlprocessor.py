@@ -70,3 +70,9 @@ def test_get_source_title(processor):
     path = "/thetitle"
     source_title = processor.get_source_title(path)
     assert source_title == "thetitle"
+
+
+def test_get_source_root(processor):
+    source = "sourcewebfile.html"
+    source_root = processor.get_source_root(source)
+    assert source_root == "sourcewebfile."
