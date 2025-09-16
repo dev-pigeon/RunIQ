@@ -76,3 +76,9 @@ def test_get_source_root(processor):
     source = "sourcewebfile.html"
     source_root = processor.get_source_root(source)
     assert source_root == "sourcewebfile."
+
+
+def test_get_output_path(processor):
+    source = "sourcewebfile.html"
+    output_path = processor.get_output_path(source)
+    assert output_path == "output/test/sourcewebfile.json"
