@@ -27,9 +27,10 @@ class Ingestor:
         return parameters
 
     def flush_buffer(self, collection):
-        parameters = self.get_parameters()
-        self.batch_insert(collection, parameters)
-        self.buffer = []
+        if len(self.buffer) > 0:
+            parameters = self.get_parameters()
+            self.batch_insert(collection, parameters)
+            self.buffer = []
 
     def batch_insert(self, collection, parameters):
         collection.add(

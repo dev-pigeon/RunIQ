@@ -36,9 +36,17 @@ def test_get_parameters(sample_buffer):
     assert parameters['metas'][0]['source'] == "doc1.txt"
 
 
-def test_flush_buffer(collection, sample_buffer):
+def test_flush_buffer_full(collection, sample_buffer):
     i = Ingestor()
     i.buffer = sample_buffer
     assert len(i.buffer) == 90
     i.flush_buffer(collection)
     assert len(i.buffer) == 0
+
+
+def test_flush_buffer_empty(collection):
+    i = Ingestor()
+    try:
+        i.flush_buffer(collection)
+    except ValueError:
+        pytest.fail("ValueError should not be thrown for an empty buffer.")
