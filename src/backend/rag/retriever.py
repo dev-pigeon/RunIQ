@@ -14,6 +14,7 @@ class Retriever:
         pass
 
     def retrieve(self, query_text):
+        self.logger.info("Retrieving context based on user query.")
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client)
         model = SentenceTransformer("all-MiniLM-L6-v2")
