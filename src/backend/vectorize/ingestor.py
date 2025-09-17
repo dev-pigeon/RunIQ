@@ -1,9 +1,9 @@
-import os
-import chromadb  # type: ignore
+import logging
 
 
 class Ingestor:
     def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
         self.MAX_BUFFER_SIZE = 100
         self.buffer = []
 
@@ -13,6 +13,7 @@ class Ingestor:
             self.flush_buffer(collection)
 
     def get_parameters(self):
+        self.logger.debug("Collecting parameters for batch insert.")
         ids = [chunk['id'] for chunk in self.buffer]
         docs = [chunk['document'] for chunk in self.buffer]
         metas = [chunk['metadata'] for chunk in self.buffer]
@@ -33,6 +34,8 @@ class Ingestor:
             self.buffer = []
 
     def batch_insert(self, collection, parameters):
+        self.logger.debug(
+            f"Performing batch insert for {len(parameters['ids'])} chunks.")
         collection.add(
             ids=parameters['ids'],
             documents=parameters['docs'],
