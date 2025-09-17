@@ -2,11 +2,10 @@ import json
 import argparse
 import logging
 
-logger = logging.getLogger(__name__)
-
 
 class Chunker:
     def __init__(self) -> None:
+        self.logger = logging.getLogger(__name__)
         self.MAX_CHUNK_SIZE = 250  # tokens
         self.CHUNK_OVERLAP = 75
         pass
@@ -14,7 +13,7 @@ class Chunker:
     def chunk_file(self, data):
         # data is json file containing a parsed document
         if self.has_key(data, "source"):
-            logger.info(f"Starting chunking {data['source']}")
+            self.logger.info(f"Starting chunking {data['source']}")
             paragraph_chunks = self.chunk_paragraphs(data)
             table_chunks = self.chunk_tables(data)
 
@@ -22,11 +21,12 @@ class Chunker:
             chunks += paragraph_chunks
             chunks += table_chunks
 
-            logger.debug(f"Created {len(chunks)} chunks from {data['source']}")
-            logger.info(f"Finished chunking {data['source']}")
+            self.logger.debug(
+                f"Created {len(chunks)} chunks from {data['source']}")
+            self.logger.info(f"Finished chunking {data['source']}")
             return chunks
         else:
-            logger.warning("Data has no source, skipping file.")
+            self.logger.warning("Data has no source, skipping file.")
             return []
 
     def has_key(self, data, key):
@@ -44,7 +44,8 @@ class Chunker:
 
     def chunk_paragraphs(self, data):
         if self.has_key(data, "paragraphs"):
-            logger.debug(f"Chunking paragraphs from source {data['source']}")
+            self.logger.debug(
+                f"Chunking paragraphs from source {data['source']}")
             para_chunks = []
             curr_chunk = ""
             source = data['source']
@@ -63,12 +64,12 @@ class Chunker:
 
             return para_chunks
         else:
-            logger.debug(f"{data['source']} has no paragraphs.")
+            self.logger.debug(f"{data['source']} has no paragraphs.")
             return []
 
     def chunk_tables(self, data):
         if self.has_key(data, "tables"):
-            logger.debug(f"Chunking tables from source {data['source']}")
+            self.logger.debug(f"Chunking tables from source {data['source']}")
             table_chunks = []
             for table in data['tables']:
                 source = table['source_file']
@@ -78,7 +79,7 @@ class Chunker:
 
             return table_chunks
         else:
-            logger.debug(f"{data['source']} has no tables.")
+            self.logger.debug(f"{data['source']} has no tables.")
             return []
 
 
