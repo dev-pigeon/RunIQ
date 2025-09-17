@@ -8,10 +8,11 @@ import logging
 # set up logger
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="rag/rag.log",
-                    format="%(asctime)s [%(levelname)s] %(name)s %(message)s")
+                    format="%(asctime)s [%(levelname)s] %(name)s %(message)s", level=logging.DEBUG)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("transformers").setLevel(logging.WARNING)
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 def is_quit(query):
