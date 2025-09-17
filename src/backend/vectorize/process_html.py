@@ -1,13 +1,17 @@
 import argparse
 import json
+import logging
 from bs4 import BeautifulSoup  # type: ignore
+
+logger = logging.getLogger(__name__)
 
 
 class HTMLProcessor():
     def __init__(self, config) -> None:
         self.config = config
 
-    def get_paragraphs(self, soup, ignore_classes):
+    def get_paragraphs(self, soup, ignore_classes, source):
+        logger.debug(f"Collecting paragraphs from {source}")
         paragraphs = []
         for p in soup.find_all("p"):
             parent_divs = p.find_parents("div")
@@ -74,6 +78,7 @@ class HTMLProcessor():
         return level
 
     def process_table(self, table, table_config, level):
+        logger.debug(f"Processing table for {level}")
         formatted_level = self.format_level(level)
         desc = f"{formatted_level} training plan"
         weeks_data = []
@@ -107,35 +112,40 @@ class HTMLProcessor():
 
         return table_json
 
-    def process_html_file(self, path):
-        ignore_classes = self.config['classes-ignore']
-        with open(path, 'r', encoding='utf-8') as f:
-            html = f.read()
-            soup = BeautifulSoup(html, "html.parser")
+    def process_html_file(self, path, source):
+        try:
+            ignore_classes = self.config['classes-ignore']
+            with open(path, 'r', encoding='utf-8') as f:
+                html = f.read()
+                soup = BeautifulSoup(html, "html.parser")
 
-            # get the output json information
-            source = self.get_source_title(path)
-            paragraphs = self.get_paragraphs(soup, ignore_classes)
-            table_jsons = None
-            # get the table
-            if self.config['tables'] is True:
-                table_jsons = self.process_tables(
-                    soup, self.config['table_structure'], self.get_source_root(source)[:-1])
+                paragraphs = self.get_paragraphs(soup, ignore_classes, source)
+                table_jsons = None
 
-            output = {
-                "source": source,
-                "paragraphs": paragraphs,
-                "tables": table_jsons
-            }
+                if self.config['tables'] is True:
+                    source_root = self.get_source_root(source)[:-1]
+                    table_jsons = self.process_tables(
+                        soup, self.config['table_structure'], source_root)
 
-            # write to output
-            output_path = self.get_output_path(
-                source)
-            self.write_json(output, output_path)
+                output = {
+                    "source": source,
+                    "paragraphs": paragraphs,
+                    "tables": table_jsons
+                }
+
+                # write to output
+                output_path = self.get_output_path(
+                    source)
+                self.write_json(output, output_path)
+        except FileNotFoundError:
+            logger.warning(f"File: {path} does not exist, moving on...")
 
     def process_files(self):
+        logger.info("Processing html files.")
         for path in self.config['input_paths']:
-            self.process_html_file(path)
+            source = self.get_source_title(path)
+            self.process_html_file(path, source)
+        logger.info("Finished processing html files.")
 
 
 if __name__ == "__main__":

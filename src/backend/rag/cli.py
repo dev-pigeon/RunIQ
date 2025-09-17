@@ -2,6 +2,17 @@ import os
 import json
 from rag.retriever import Retriever
 from rag.generator import Generator
+import logging
+
+
+# set up logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename="rag/rag.log",
+                    format="%(asctime)s [%(levelname)s] %(name)s %(message)s", level=logging.DEBUG)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("transformers").setLevel(logging.WARNING)
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 
 def is_quit(query):
@@ -9,6 +20,7 @@ def is_quit(query):
 
 
 if __name__ == "__main__":
+    logger.info("Initializing resources.")
     prompt_config_path = os.environ['RUNBOT_PROMPT_PATH']
     with open(prompt_config_path, 'r') as file:
         config_prompt = json.load(file)['prompt']
@@ -16,11 +28,17 @@ if __name__ == "__main__":
     retriever = Retriever()
     generator = Generator()
 
-    while True:
-        query_text = input("Enter a query: ")
-        if is_quit(query_text):
-            print("Exiting...")
-            break
-        context = retriever.retrieve(query_text)
-        response = generator.generate(query_text, context, config_prompt)
-        print(response)
+    logger.info("Beginning query sequence.")
+
+    try:
+        while True:
+            query_text = input("Enter a query: ")
+            if is_quit(query_text):
+                logger.info("Ending query sequence")
+                print("Exiting...")
+                break
+            context = retriever.retrieve(query_text)
+            response = generator.generate(query_text, context, config_prompt)
+            print(response)
+    except ConnectionError as e:
+        logger.error(e)
