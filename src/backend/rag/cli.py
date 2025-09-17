@@ -29,12 +29,15 @@ if __name__ == "__main__":
 
     logger.info("Beginning query sequence.")
 
-    while True:
-        query_text = input("Enter a query: ")
-        if is_quit(query_text):
-            logger.info("Ending query sequence")
-            print("Exiting...")
-            break
-        context = retriever.retrieve(query_text)
-        response = generator.generate(query_text, context, config_prompt)
-        print(response)
+    try:
+        while True:
+            query_text = input("Enter a query: ")
+            if is_quit(query_text):
+                logger.info("Ending query sequence")
+                print("Exiting...")
+                break
+            context = retriever.retrieve(query_text)
+            response = generator.generate(query_text, context, config_prompt)
+            print(response)
+    except ConnectionError as e:
+        logger.error(e)
