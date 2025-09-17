@@ -1,5 +1,8 @@
 import json
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Chunker:
@@ -10,13 +13,21 @@ class Chunker:
 
     def chunk_file(self, data):
         # data is json file containing a parsed document
-        paragraph_chunks = self.chunk_paragraphs(data)
-        table_chunks = self.chunk_tables(data)
+        if self.has_key(data, "source"):
+            logger.info(f"Starting chunking {data['source']}")
+            paragraph_chunks = self.chunk_paragraphs(data)
+            table_chunks = self.chunk_tables(data)
 
-        chunks = []
-        chunks += paragraph_chunks
-        chunks += table_chunks
-        return chunks
+            chunks = []
+            chunks += paragraph_chunks
+            chunks += table_chunks
+
+            logger.debug(f"Created {len(chunks)} chunks from {data['source']}")
+            logger.info(f"Finished chunking {data['source']}")
+            return chunks
+        else:
+            logger.warning("Data has no source, skipping file.")
+            return []
 
     def has_key(self, data, key):
         return key in data
@@ -32,8 +43,9 @@ class Chunker:
         return chunk
 
     def chunk_paragraphs(self, data):
-        para_chunks = []
-        if self.has_key(data, "source") and self.has_key(data, "paragraphs"):
+        if self.has_key(data, "paragraphs"):
+            logger.debug(f"Chunking paragraphs from source {data['source']}")
+            para_chunks = []
             curr_chunk = ""
             source = data['source']
             for para in data['paragraphs']:
@@ -49,18 +61,25 @@ class Chunker:
                 curr_chunk, len(para_chunks), source)
             para_chunks.append(chunk)
 
-        return para_chunks
+            return para_chunks
+        else:
+            logger.debug(f"{data['source']} has no paragraphs.")
+            return []
 
     def chunk_tables(self, data):
-        table_chunks = []
         if self.has_key(data, "tables"):
+            logger.debug(f"Chunking tables from source {data['source']}")
+            table_chunks = []
             for table in data['tables']:
                 source = table['source_file']
                 for week in table['weeks']:
                     chunk = self.make_chunk(week, len(table_chunks), source)
                     table_chunks.append(chunk)
 
-        return table_chunks
+            return table_chunks
+        else:
+            logger.debug(f"{data['source']} has no tables.")
+            return []
 
 
 if __name__ == "__main__":
@@ -74,4 +93,3 @@ if __name__ == "__main__":
 
     chunker = Chunker()
     chunks = chunker.chunk_file(data)
-    print(chunks)

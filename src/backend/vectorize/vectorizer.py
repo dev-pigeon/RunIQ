@@ -25,7 +25,7 @@ class Vectorizer:
         return chunk
 
     def embed_text(self, text, model):
-        embedding_raw = model.encode(text)
+        embedding_raw = model.encode(text, show_progress_bar=False)
         embedding_raw = embedding_raw.astype('float32')
         embedding = embedding_raw.tolist()
         return embedding
