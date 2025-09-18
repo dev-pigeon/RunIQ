@@ -54,6 +54,8 @@ class Chunker:
         return curr_chunk
 
     def chunk_strategy_naive(self, data):
+        # builds each chunk at the token level
+        # ensures chunks are all the same size
         chunks = []
         curr_chunk = []
         source = data['source']
@@ -63,22 +65,37 @@ class Chunker:
                 if len(curr_chunk) < self.MAX_CHUNK_SIZE:
                     curr_chunk.append(token)
                 else:
-                    curr_chunk = self.emit_chunks(
-                        chunks, curr_chunk, source)
+                    curr_chunk = self.emit_chunks(chunks, curr_chunk, source)
 
-        curr_chunk = self.emit_chunks(
-            chunks, curr_chunk, source)
-        print(chunks)
+        curr_chunk = self.emit_chunks(chunks, curr_chunk, source)
+        return chunks
+
+    def chunk_strategy_paragraph(self, data):
+        # builds each chunk at the paragraph level
+        # helps ensure chunks capture semantic meaning
+        chunks = []
+        curr_chunk = []
+        source = data['source']
+        for para in data['paragraphs']:
+            tokens = self.tokenize(para)
+            # decide on token
+            if len(curr_chunk) + len(tokens) > self.MAX_CHUNK_SIZE:
+                curr_chunk = self.emit_chunks(chunks, curr_chunk, source)
+            else:
+                curr_chunk.extend(tokens)
+        curr_chunk = self.emit_chunks(chunks, curr_chunk, source)
         return chunks
 
     def chunk_paragraphs(self, data):
         if self.has_key(data, "paragraphs"):
+            self.logger.debug(
+                f"Chunking paragraphs from source: {data['source']} with strategy: {self.strategy}")
             chunks = []
             match self.strategy:
                 case "naive":
-                    self.logger.debug(
-                        f"Chunking paragraphs from source: {data['source']} with strategy: {self.strategy}")
                     chunks = self.chunk_strategy_naive(data)
+                case "paragraph":
+                    chunks = self.chunk_strategy_paragraph(data)
 
             return chunks
         else:
@@ -110,5 +127,5 @@ if __name__ == "__main__":
     with open(data_path, 'r') as file:
         data = json.load(file)
 
-    chunker = Chunker()
+    chunker = Chunker(chunking_strategy="paragraph")
     chunks = chunker.chunk_file(data)
