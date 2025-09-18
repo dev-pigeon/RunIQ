@@ -142,7 +142,6 @@ class Chunker:
                 case "hybrid":
                     chunks = self.chunk_strategy_hybrid(data)
 
-            print(chunks)
             return chunks
         else:
             self.logger.debug(f"{data['source']} has no paragraphs.")
