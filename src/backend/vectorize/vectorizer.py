@@ -5,12 +5,13 @@ import logging
 
 
 class Vectorizer:
-    def __init__(self) -> None:
+    def __init__(self, model_type="all-MiniLM-L6-v2") -> None:
+        self.model_type = model_type
         self.logger = logging.getLogger(__name__)
 
     def embed_and_insert(self, chunks, ingestor: Ingestor):
         self.logger.info("Starting embed / insert process.")
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = SentenceTransformer(self.model_type)
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client)
 
