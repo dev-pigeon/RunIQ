@@ -4,11 +4,10 @@ import logging
 
 
 class Chunker:
-    def __init__(self) -> None:
+    def __init__(self, chunk_size=250, chunk_overlap_percent=30) -> None:
         self.logger = logging.getLogger(__name__)
-        self.MAX_CHUNK_SIZE = 250  # tokens
-        self.CHUNK_OVERLAP = 75
-        pass
+        self.MAX_CHUNK_SIZE = chunk_size  # tokens
+        self.CHUNK_OVERLAP = int(chunk_size * (chunk_overlap_percent / 100))
 
     def chunk_file(self, data):
         # data is json file containing a parsed document
