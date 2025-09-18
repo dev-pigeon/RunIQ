@@ -2,6 +2,31 @@ from vectorize.chunker import Chunker
 import pytest  # type: ignore
 
 
+@pytest.fixture(scope='module', autouse=True)
+def sentences_paragraph_no_abbrev():
+    return "This is sentence one. What is a sentence? I love sentences!"
+
+
+@pytest.fixture(scope='module', autouse=True)
+def sentences_paragraph_with_abbrev():
+    return "This is sentence one. Dr. Young is my wife's title."
+
+
+def test_get_sentences_no_abbrev(sentences_paragraph_no_abbrev):
+    c = Chunker()
+    sentences = c.get_sentences(sentences_paragraph_no_abbrev)
+    assert sentences[0] == "This is sentence one."
+    assert sentences[1] == "What is a sentence?"
+    assert sentences[2] == "I love sentences!"
+
+
+def test_get_sentences_with_abbrev(sentences_paragraph_with_abbrev):
+    c = Chunker()
+    sentences = c.get_sentences(sentences_paragraph_with_abbrev)
+    assert sentences[0] == "This is sentence one."
+    assert sentences[1] == "Dr. Young is my wife's title."
+
+
 def test_make_chunk_structure():
     c = Chunker()
     text = "Fake chunker"
