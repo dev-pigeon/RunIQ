@@ -15,7 +15,8 @@ def test_make_chunk_structure():
 def test_multiple_chunks():
     c = Chunker()
     # each para here is 250 chars, should have 3 chunks
-    data = {"paragraphs": ["a"*250, "b"*250, "c"*250], "source": "tests"}
+    data = {"paragraphs": ["aaa "*250, "bbb " *
+                           250, "ccc "*250], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
     assert len(chunks) >= 3
 
@@ -23,14 +24,14 @@ def test_multiple_chunks():
 def test_one_chunk():
     c = Chunker()
     # each para here is 250 chars, should have 3 chunks
-    data = {"paragraphs": ["a"*100], "source": "tests"}
+    data = {"paragraphs": ["aaa "*100], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
     assert len(chunks) == 1
 
 
 def test_chunk_overlap():
     c = Chunker()
-    data = {"paragraphs": ["a"*200, "b"*200], "source": "tests"}
+    data = {"paragraphs": ["a "*200, "b "*200], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
     assert chunks[0]["document"][-c.CHUNK_OVERLAP:] == chunks[1]["document"][:c.CHUNK_OVERLAP]
 
