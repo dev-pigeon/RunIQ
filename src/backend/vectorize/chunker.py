@@ -4,10 +4,11 @@ import logging
 
 
 class Chunker:
-    def __init__(self, chunk_size=250, chunk_overlap_percent=10) -> None:
+    def __init__(self, chunk_size=250, chunk_overlap_percent=10, chunking_strategy="naive") -> None:
         self.logger = logging.getLogger(__name__)
         self.MAX_CHUNK_SIZE = chunk_size  # tokens
         self.CHUNK_OVERLAP = int(chunk_size * (chunk_overlap_percent / 100))
+        self.strategy = chunking_strategy
 
     def chunk_file(self, data):
         # data is json file containing a parsed document
@@ -52,25 +53,33 @@ class Chunker:
         curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
         return curr_chunk
 
+    def chunk_strategy_naive(self, data):
+        chunks = []
+        curr_chunk = []
+        source = data['source']
+        for para in data['paragraphs']:
+            tokens = self.tokenize(para)
+            for token in tokens:
+                if len(curr_chunk) < self.MAX_CHUNK_SIZE:
+                    curr_chunk.append(token)
+                else:
+                    curr_chunk = self.emit_chunks(
+                        chunks, curr_chunk, source)
+
+        curr_chunk = self.emit_chunks(
+            chunks, curr_chunk, source)
+        print(chunks)
+        return chunks
+
     def chunk_paragraphs(self, data):
         if self.has_key(data, "paragraphs"):
-            self.logger.debug(
-                f"Chunking paragraphs from source {data['source']}")
             chunks = []
-            curr_chunk = []
-            source = data['source']
-            for para in data['paragraphs']:
-                tokens = self.tokenize(para)
-                for token in tokens:
-                    if len(curr_chunk) < self.MAX_CHUNK_SIZE:
-                        curr_chunk.append(token)
-                    else:
-                        curr_chunk = self.emit_chunks(
-                            chunks, curr_chunk, source)
+            match self.strategy:
+                case "naive":
+                    self.logger.debug(
+                        f"Chunking paragraphs from source: {data['source']} with strategy: {self.strategy}")
+                    chunks = self.chunk_strategy_naive(data)
 
-            curr_chunk = self.emit_chunks(
-                chunks, curr_chunk, source)
-            print(chunks)
             return chunks
         else:
             self.logger.debug(f"{data['source']} has no paragraphs.")
