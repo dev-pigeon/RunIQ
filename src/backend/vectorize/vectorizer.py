@@ -2,10 +2,12 @@ from vectorize.ingestor import Ingestor
 import util.db as db
 from sentence_transformers import SentenceTransformer  # type: ignore
 import logging
+import os
 
 
 class Vectorizer:
-    def __init__(self, model_type="all-MiniLM-L6-v2") -> None:
+    def __init__(self, model_type="all-MiniLM-L6-v2", collection_name="") -> None:
+        self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
         self.model_type = model_type
         self.logger = logging.getLogger(__name__)
 
@@ -13,7 +15,7 @@ class Vectorizer:
         self.logger.info("Starting embed / insert process.")
         model = SentenceTransformer(self.model_type)
         client = db.get_chroma_client()
-        collection = db.get_chroma_collection(client)
+        collection = db.get_chroma_collection(client, self.collection_name)
 
         for chunk in chunks:
             embedded_chunk = self.vectorize_chunk(chunk, model)

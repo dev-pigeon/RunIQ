@@ -8,7 +8,6 @@ def get_chroma_client():
     return client
 
 
-def get_chroma_collection(client):
-    collection_name = os.environ['RUNBOT_CHROMA_COLLECTION']
+def get_chroma_collection(client, collection_name):
     collection = client.get_or_create_collection(name=collection_name)
     return collection
