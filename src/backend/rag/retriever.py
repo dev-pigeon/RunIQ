@@ -3,21 +3,23 @@
 import argparse
 from sentence_transformers import SentenceTransformer  # type: ignore
 from vectorize.vectorizer import Vectorizer
+import os
 import util.db as db
 import logging
 
 
 class Retriever:
-    def __init__(self) -> None:
+    def __init__(self, collection_name="", model_type="all-MiniLM-L6-v2") -> None:
         self.logger = logging.getLogger(__name__)
         self.vectorizer = Vectorizer()
-        pass
+        self.model_type = model_type
+        self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
     def retrieve(self, query_text):
         self.logger.info("Retrieving context based on user query.")
         client = db.get_chroma_client()
-        collection = db.get_chroma_collection(client)
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        collection = db.get_chroma_collection(client, self.collection_name)
+        model = SentenceTransformer(self.model_type)
         query_embedding = self.vectorizer.embed_text(query_text, model)
         results = collection.query(
             query_embeddings=[query_embedding],
