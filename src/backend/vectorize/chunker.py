@@ -4,7 +4,7 @@ import logging
 
 
 class Chunker:
-    def __init__(self, chunk_size=250, chunk_overlap_percent=30) -> None:
+    def __init__(self, chunk_size=250, chunk_overlap_percent=10) -> None:
         self.logger = logging.getLogger(__name__)
         self.MAX_CHUNK_SIZE = chunk_size  # tokens
         self.CHUNK_OVERLAP = int(chunk_size * (chunk_overlap_percent / 100))
@@ -41,27 +41,37 @@ class Chunker:
 
         return chunk
 
+    def tokenize(self, text):
+        return text.split()
+
+    def emit_chunks(self, chunks, curr_chunk, source):
+        chunk_text = " ".join(curr_chunk)
+        chunk = self.make_chunk(
+            chunk_text, len(chunks), source)
+        chunks.append(chunk)
+        curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
+        return curr_chunk
+
     def chunk_paragraphs(self, data):
         if self.has_key(data, "paragraphs"):
             self.logger.debug(
                 f"Chunking paragraphs from source {data['source']}")
-            para_chunks = []
-            curr_chunk = ""
+            chunks = []
+            curr_chunk = []
             source = data['source']
             for para in data['paragraphs']:
-                curr_chunk += para
+                tokens = self.tokenize(para)
+                for token in tokens:
+                    if len(curr_chunk) < self.MAX_CHUNK_SIZE:
+                        curr_chunk.append(token)
+                    else:
+                        curr_chunk = self.emit_chunks(
+                            chunks, curr_chunk, source)
 
-                if len(curr_chunk) >= self.MAX_CHUNK_SIZE:
-                    chunk = self.make_chunk(
-                        curr_chunk, len(para_chunks), source)
-                    para_chunks.append(chunk)
-                    curr_chunk = curr_chunk[-self.CHUNK_OVERLAP:]
-
-            chunk = self.make_chunk(
-                curr_chunk, len(para_chunks), source)
-            para_chunks.append(chunk)
-
-            return para_chunks
+            curr_chunk = self.emit_chunks(
+                chunks, curr_chunk, source)
+            print(chunks)
+            return chunks
         else:
             self.logger.debug(f"{data['source']} has no paragraphs.")
             return []
