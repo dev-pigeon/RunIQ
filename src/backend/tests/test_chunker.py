@@ -59,10 +59,9 @@ def test_no_paragraphs():
 
 
 def test_chunk_tables_no_tables():
-    c = Chunker()
-    data = {"other": [{"not a": "table"}]}
     try:
-        data = {"other": [{"not a": "table"}]}
+        c = Chunker()
+        data = {"other": [{"not a": "table"}], "source": "tests"}
         c.chunk_tables(data)
-    except KeyError:
-        pytest.fail("KeyError was unexpectedly raised.")
+    except KeyError as e:
+        pytest.fail(f"KeyError was unexpectedly raised: {e}")

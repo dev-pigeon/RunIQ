@@ -50,7 +50,8 @@ def processor(fake_config):
 
 def test_get_paragraphs(processor, fake_html, fake_config):
     soup = BeautifulSoup(fake_html, 'html.parser')
-    paragraphs = processor.get_paragraphs(soup, fake_config["classes-ignore"])
+    paragraphs = processor.get_paragraphs(
+        soup, fake_config["classes-ignore"], source="tests")
     assert paragraphs == ["Paragraph 1", "Paragraph 2"]
     assert "Paragraph 3" not in paragraphs
 
