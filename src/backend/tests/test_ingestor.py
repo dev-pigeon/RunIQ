@@ -10,7 +10,7 @@ def client():
 
 @pytest.fixture(scope='module', autouse=True)
 def collection(client):
-    return get_chroma_collection(client)
+    return get_chroma_collection(client, "runbot-tests")
 
 
 @pytest.fixture
