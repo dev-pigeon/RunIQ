@@ -11,9 +11,10 @@ class Vectorizer:
         self.model_type = model_type
         self.logger = logging.getLogger(__name__)
 
-    def embed_and_insert(self, chunks, ingestor: Ingestor):
+    def embed_and_insert(self, chunks, ingestor: Ingestor, input_model=None):
         self.logger.info("Starting embed / insert process.")
-        model = SentenceTransformer(self.model_type)
+        model = input_model if input_model is not None else SentenceTransformer(
+            self.model_type)
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
 

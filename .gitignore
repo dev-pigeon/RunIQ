@@ -1,8 +1,5 @@
 src/backend/venv
 src/backend/dev
-src/backend/vectorize/__pycache__
-src/backend/rag/__pycache__
-src/backend/util/__pycache__
-src/backend/tests/__pycache__
-src/backend/vectorize/vectorization.log
+__pycache__
+*.log
 src/backend/rag/rag.log
