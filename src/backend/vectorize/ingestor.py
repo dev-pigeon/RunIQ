@@ -36,7 +36,7 @@ class Ingestor:
     def batch_insert(self, collection, parameters):
         self.logger.debug(
             f"Performing batch insert for {len(parameters['ids'])} chunks.")
-        collection.add(
+        collection.upsert(
             ids=parameters['ids'],
             documents=parameters['docs'],
             metadatas=parameters['metas'],
