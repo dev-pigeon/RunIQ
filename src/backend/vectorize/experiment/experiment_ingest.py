@@ -1,6 +1,7 @@
 from vectorize.chunker import Chunker
 from vectorize.vectorizer import Vectorizer
 from vectorize.ingestor import Ingestor
+from sentence_transformers import SentenceTransformer  # type: ignore
 import json
 import logging
 
@@ -11,13 +12,13 @@ def open_json(file_path):
     return data
 
 
-def run_experiment_ingest_pipeline():
+def run_experiment_ingest_pipeline(model):
     logger.info(
         f"Beginning test experiment ingestion sequence for {output_collection}")
     for path in chunker_paths:
         data = open_json(path)
         chunks = chunker.chunk_file(data)
-        vectorizer.embed_and_insert(chunks, ingestor)
+        vectorizer.embed_and_insert(chunks, ingestor, input_model=model)
     logger.info(f"finished chunking and ingesting for {output_collection}")
 
 
@@ -39,6 +40,7 @@ if __name__ == "__main__":
 
     # everyhing below is in the loop
     for model in config['models']:
+        input_model = SentenceTransformer(model)
         for strategy in config['chunk_strategies']:
             for chunk_size in config['chunk_sizes']:
                 # if its not hybrid do the overlaps, else just call it with the sizes and move on
@@ -49,7 +51,7 @@ if __name__ == "__main__":
                             chunk_size=chunk_size, chunk_overlap_percent=overlap, chunking_strategy=strategy)
                         vectorizer = Vectorizer(
                             model_type=model, collection_name=output_collection)
-                        run_experiment_ingest_pipeline()
+                        run_experiment_ingest_pipeline(input_model)
 
                 else:
                     output_collection = f"MODEL{model}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
@@ -57,4 +59,4 @@ if __name__ == "__main__":
                         chunk_size=chunk_size, chunking_strategy=strategy)
                     vectorizer = Vectorizer(
                         model_type=model, collection_name=output_collection)
-                    run_experiment_ingest_pipeline()
+                    run_experiment_ingest_pipeline(input_model)
