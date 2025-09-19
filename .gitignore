@@ -1,5 +1,5 @@
 src/backend/venv
 src/backend/dev
 __pycache__
-src/backend/vectorize/vectorization.log
+*.log
 src/backend/rag/rag.log
