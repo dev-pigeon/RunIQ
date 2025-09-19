@@ -5,10 +5,10 @@ import re
 
 
 class Chunker:
-    def __init__(self, chunk_size=250, chunk_overlap_percent=10, chunking_strategy="naive") -> None:
+    def __init__(self, chunk_size=250, chunk_overlap_percent=.10, chunking_strategy="naive") -> None:
         self.logger = logging.getLogger(__name__)
         self.MAX_CHUNK_SIZE = chunk_size  # tokens
-        self.CHUNK_OVERLAP = int(chunk_size * (chunk_overlap_percent / 100))
+        self.CHUNK_OVERLAP = int(chunk_size * chunk_overlap_percent)
         self.strategy = chunking_strategy
         self.ABBREVIATIONS = {"Mr.", "Mrs.", "Dr.",
                               "Prof.", "Sr.", "Jr.", "e.g.", "i.e."}
@@ -132,7 +132,7 @@ class Chunker:
     def chunk_paragraphs(self, data):
         if self.has_key(data, "paragraphs"):
             self.logger.debug(
-                f"Chunking paragraphs from source: {data['source']} with strategy: {self.strategy}")
+                f"Chunking paragraphs from source: {data['source']} with STRATEGY: {self.strategy} SIZE: {self.MAX_CHUNK_SIZE} OVERLAP: {self.CHUNK_OVERLAP}")
             chunks = []
             match self.strategy:
                 case "naive":
