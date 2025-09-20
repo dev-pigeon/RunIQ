@@ -68,7 +68,7 @@ def calculate_cosine_similarity(result_embedding, query_response_embedding):
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
-    logging.basicConfig(filename="vectorize/experiment/experiment.log",
+    logging.basicConfig(filename="vectorize/experiment/scheme_validation.log",
                         level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("transformers").setLevel(logging.WARNING)
