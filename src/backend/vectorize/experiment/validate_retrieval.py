@@ -21,10 +21,9 @@ def run_queries(collection_name, model, queries):
     running_sum = 0
     retriever = Retriever(collection_name=collection_name)
     vectorizer = Vectorizer(collection_name=collection_name)
-    logger.debug(f"Running queries for {collection_name}")
+    logger.debug(f"Calculating p@k for {collection_name}")
     for query in queries['queries']:
         results = retriever.retrieve_chunks(query['text'], model)
-
         precision_at_k = calculate_precision_at_k(
             results, query, vectorizer)
         running_sum += precision_at_k
