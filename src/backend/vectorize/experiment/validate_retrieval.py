@@ -12,6 +12,11 @@ def open_json(file_path):
     return data
 
 
+def write_json(file_path, data):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
 def run_queries(collection_name, model, queries):
     running_sum = 0
     retriever = Retriever(collection_name=collection_name)
@@ -24,6 +29,7 @@ def run_queries(collection_name, model, queries):
             results, query, vectorizer)
         running_sum += precision_at_k
     mean_precision_at_k = running_sum / len(queries['queries'])
+    return mean_precision_at_k
 
 
 def calculate_precision_at_k(results, query, vectorizer):
@@ -75,6 +81,8 @@ if __name__ == "__main__":
     queries_path = "./dev/data/experiment/queries.json"
     queries = open_json(queries_path)
 
+    output = []  # list of json objects
+
     for model_name in config['models']:
         model = SentenceTransformer(model_name)
         for strategy in config['chunk_strategies']:
@@ -83,7 +91,15 @@ if __name__ == "__main__":
                 if strategy != "hybrid":
                     for overlap in config['chunk_overlaps']:
                         collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
-                        # run_queries(collection_name, model, queries)
+                        mean_precision_at_k = run_queries(
+                            collection_name, model, queries)
+                        output.append({"chunk_scheme": collection_name,
+                                       "mean_p@k": mean_precision_at_k})
                 else:
                     collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
-                    run_queries(collection_name, model, queries)
+                    mean_precision_at_k = run_queries(
+                        collection_name, model, queries)
+                    output.append({"chunk_scheme": collection_name,
+                                  "mean_p@k": mean_precision_at_k})
+    # write output
+    write_json("./dev/data/experiment/output.json", output)
