@@ -13,16 +13,52 @@ def open_json(file_path):
 
 
 def run_queries(collection_name, model, queries):
+    running_sum = 0
     retriever = Retriever(collection_name=collection_name)
     vectorizer = Vectorizer(collection_name=collection_name)
     logger.debug(f"Running queries for {collection_name}")
     for query in queries['queries']:
         results = retriever.retrieve_chunks(query['text'], model)
-        result_embeddings = results['embeddings'][0].tolist()
-        query_response_embedding = vectorizer.embed_text(
-            query['relevant_response'], model)
-        # get the precision at k for that
-        # add it to the mean
+
+        precision_at_k = calculate_precision_at_k(
+            results, query, vectorizer)
+        running_sum += precision_at_k
+    mean_precision_at_k = running_sum / len(queries['queries'])
+
+
+def calculate_precision_at_k(results, query, vectorizer):
+    result_embeddings = results['embeddings'][0]
+    result_texts = results['documents'][0]
+
+    query_response_embedding = numpy.array(vectorizer.embed_text(
+        query['relevant_response'], model))
+    query_response_text = query['relevant_response']
+
+    num_relevant_chunks = 0
+    k = len(result_embeddings)
+
+    for i in range(0, k):
+        result_embedding = result_embeddings[i]
+        result_text = result_texts[i]
+        cosine_similarity = calculate_cosine_similarity(
+            result_embedding, query_response_embedding)
+        if cosine_similarity > 0.75 or query_response_text in result_text:
+            num_relevant_chunks += 1
+
+    precision_at_k = num_relevant_chunks / k
+    return precision_at_k
+
+
+def calculate_cosine_similarity(result_embedding, query_response_embedding):
+    dot_product = numpy.dot(result_embedding, query_response_embedding)
+
+    result_embedding_norm = numpy.linalg.norm(result_embedding)
+    response_embedding_norm = numpy.linalg.norm(query_response_embedding)
+    if response_embedding_norm == 0 or result_embedding_norm == 0:
+        return -1
+    cosine_similarity = dot_product / \
+        (result_embedding_norm * response_embedding_norm)
+    return cosine_similarity
 
 
 if __name__ == "__main__":
