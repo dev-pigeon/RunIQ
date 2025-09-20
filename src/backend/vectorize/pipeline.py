@@ -26,13 +26,19 @@ class Pipeline:
     def __init__(self) -> None:
         pass
 
+    # no reason the model should be re-instantiated inside of vectorizer.
+    # model should be created here and passed in similar to the experiment ingest
+    # additionally the pipeline.json config should also contain the prompt as well as the chunker, & vectorizer parameters
+
     def run(self, config):
         logger.info("Beginning vectorization pipeline.")
-        chunker = Chunker()
+        chunker_config = config['worker_parameters']['chunker']
+        chunker = Chunker(chunk_size=chunker_config['chunk_size'],
+                          chunk_overlap_percent=chunker_config['overlap_percent'], chunking_strategy=chunker_config['strategy'])
         ingestor = Ingestor()
         vectorizer = Vectorizer()
 
-        for group in config:
+        for group in config['processing_groups']:
             # process files
             logger.info(f"Sending files from {group['source']} for processing")
             processing_config = open_json(group['processing_config_path'])
