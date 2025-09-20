@@ -5,6 +5,7 @@ from vectorize.process_html import HTMLProcessor
 from vectorize.chunker import Chunker
 from vectorize.ingestor import Ingestor
 from vectorize.vectorizer import Vectorizer
+from sentence_transformers import SentenceTransformer  # type: ignore
 
 
 # set up logger
@@ -37,6 +38,7 @@ class Pipeline:
                           chunk_overlap_percent=chunker_config['overlap_percent'], chunking_strategy=chunker_config['strategy'])
         ingestor = Ingestor()
         vectorizer = Vectorizer()
+        model = SentenceTransformer(config['model'])
 
         for group in config['processing_groups']:
             # process files
@@ -50,7 +52,7 @@ class Pipeline:
             for path in chunking_config['paths']:
                 data = open_json(path)
                 chunks = chunker.chunk_file(data)
-                vectorizer.embed_and_insert(chunks, ingestor)
+                vectorizer.embed_and_insert(chunks, ingestor, model)
 
         logger.info("Finished with vectorization pipeline.")
 
