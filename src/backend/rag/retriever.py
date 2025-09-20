@@ -25,6 +25,7 @@ class Retriever:
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=5,
+            include=['documents', 'metadatas', 'embeddings']
         )
         return results
 

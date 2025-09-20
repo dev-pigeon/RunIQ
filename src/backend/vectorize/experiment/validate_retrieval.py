@@ -43,7 +43,7 @@ if __name__ == "__main__":
                 if strategy != "hybrid":
                     for overlap in config['chunk_overlaps']:
                         collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
-                        run_queries(collection_name, model, queries)
+                        # run_queries(collection_name, model, queries)
                 else:
                     collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
                     run_queries(collection_name, model, queries)
