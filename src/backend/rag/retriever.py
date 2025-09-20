@@ -15,11 +15,12 @@ class Retriever:
         self.model_type = model_type
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
-    def retrieve(self, query_text):
+    def retrieve(self, query_text, input_model=None):
         self.logger.info("Retrieving context based on user query.")
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
-        model = SentenceTransformer(self.model_type)
+        model = input_model if input_model is not None else SentenceTransformer(
+            self.model_type)
         query_embedding = self.vectorizer.embed_text(query_text, model)
         results = collection.query(
             query_embeddings=[query_embedding],
