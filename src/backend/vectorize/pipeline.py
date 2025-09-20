@@ -27,10 +27,6 @@ class Pipeline:
     def __init__(self) -> None:
         pass
 
-    # no reason the model should be re-instantiated inside of vectorizer.
-    # model should be created here and passed in similar to the experiment ingest
-    # additionally the pipeline.json config should also contain the prompt as well as the chunker, & vectorizer parameters
-
     def run(self, config):
         logger.info("Beginning vectorization pipeline.")
         chunker_config = config['worker_parameters']['chunker']
