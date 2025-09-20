@@ -3,6 +3,7 @@ import logging
 from rag.retriever import Retriever
 from vectorize.vectorizer import Vectorizer
 from sentence_transformers import SentenceTransformer  # type: ignore
+import numpy
 
 
 def open_json(file_path):
@@ -17,6 +18,9 @@ def run_queries(collection_name, model, queries):
     logger.debug(f"Running queries for {collection_name}")
     for query in queries['queries']:
         results = retriever.retrieve_chunks(query['text'], model)
+        result_embeddings = results['embeddings'][0].tolist()
+        query_response_embedding = vectorizer.embed_text(
+            query['relevant_response'], model)
         # get the precision at k for that
         # add it to the mean
 
