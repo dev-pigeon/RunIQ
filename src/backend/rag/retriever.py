@@ -9,19 +9,16 @@ import logging
 
 
 class Retriever:
-    def __init__(self, collection_name="", model_type="BAAI/bge-base-en-v1.5") -> None:
+    def __init__(self, collection_name="") -> None:
         self.logger = logging.getLogger(__name__)
         self.vectorizer = Vectorizer()
-        self.model_type = model_type
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
     def retrieve_chunks(self, query_text, input_model):
         self.logger.info("Retrieving context based on user query.")
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
-        model = input_model if input_model is not None else SentenceTransformer(
-            self.model_type)
-        query_embedding = self.vectorizer.embed_text(query_text, model)
+        query_embedding = self.vectorizer.embed_text(query_text, input_model)
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=5,
@@ -57,4 +54,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     query = args.query
     retriever = Retriever()
-    # retriever.retrieve(query)
+    model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+    retriever.retrieve(query, input_model=model)
