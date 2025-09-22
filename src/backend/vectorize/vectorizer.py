@@ -6,7 +6,7 @@ import os
 
 
 class Vectorizer:
-    def __init__(self, model_type="all-MiniLM-L6-v2", collection_name="") -> None:
+    def __init__(self, model_type="BAAI/bge-base-en-v1.5", collection_name="") -> None:
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
         self.model_type = model_type
         self.logger = logging.getLogger(__name__)
