@@ -5,7 +5,7 @@ import re
 
 
 class Chunker:
-    def __init__(self, chunk_size=250, chunk_overlap_percent=.10, chunking_strategy="naive") -> None:
+    def __init__(self, chunk_size=256, chunk_overlap_percent=.20, chunking_strategy="naive") -> None:
         self.logger = logging.getLogger(__name__)
         self.MAX_CHUNK_SIZE = chunk_size  # tokens
         self.CHUNK_OVERLAP = int(chunk_size * chunk_overlap_percent)
