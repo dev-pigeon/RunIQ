@@ -6,20 +6,17 @@ import os
 
 
 class Vectorizer:
-    def __init__(self, model_type="BAAI/bge-base-en-v1.5", collection_name="") -> None:
+    def __init__(self, collection_name="") -> None:
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
-        self.model_type = model_type
         self.logger = logging.getLogger(__name__)
 
-    def embed_and_insert(self, chunks, ingestor: Ingestor, input_model=None):
+    def embed_and_insert(self, chunks, ingestor: Ingestor, input_model):
         self.logger.info("Starting embed / insert process.")
-        model = input_model if input_model is not None else SentenceTransformer(
-            self.model_type)
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
 
         for chunk in chunks:
-            embedded_chunk = self.vectorize_chunk(chunk, model)
+            embedded_chunk = self.vectorize_chunk(chunk, input_model)
             ingestor.process_chunk(embedded_chunk, collection)
 
         # flush anything that might still be in the buffer
