@@ -33,8 +33,9 @@ def test_embed_and_insert_calls_ingestor(sample_chunks, mocker):
     mock_collection = mock_db.get_chroma_collection.return_value
 
     fake_ingestor = mocker.Mock()
+    mock_model = mocker.Mock()
     v = Vectorizer()
-    v.embed_and_insert(sample_chunks, fake_ingestor)
+    v.embed_and_insert(sample_chunks, fake_ingestor, mock_model)
 
     # assert methods are called
     assert fake_ingestor.process_chunk.call_count == len(sample_chunks)
