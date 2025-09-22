@@ -18,26 +18,26 @@ def write_json(file_path, data):
         json.dump(data, file, indent=4)
 
 
-def run_queries(collection_name, model, queries):
+def run_queries(collection_name, input_model, queries):
     running_sum = 0
     retriever = Retriever(collection_name=collection_name)
     vectorizer = Vectorizer(collection_name=collection_name)
     logger.debug(f"Calculating p@k for {collection_name}")
     for query in queries['queries']:
-        results = retriever.retrieve_chunks(query['text'], model)
+        results = retriever.retrieve_chunks(query['text'], input_model)
         precision_at_k = calculate_precision_at_k(
-            results, query, vectorizer)
+            results, query, vectorizer, input_model)
         running_sum += precision_at_k
     mean_precision_at_k = running_sum / len(queries['queries'])
     return mean_precision_at_k
 
 
-def calculate_precision_at_k(results, query, vectorizer):
+def calculate_precision_at_k(results, query, vectorizer, input_model):
     result_embeddings = results['embeddings'][0]
     result_texts = results['documents'][0]
 
     query_response_embedding = numpy.array(vectorizer.embed_text(
-        query['relevant_response'], model))
+        query['relevant_response'], input_model))
     query_response_text = query['relevant_response']
 
     num_relevant_chunks = 0
@@ -82,10 +82,12 @@ if __name__ == "__main__":
     queries = open_json(queries_path)
 
     output = []  # list of json objects
+    max_precision_at_k_value = 0
+    max_precision_at_k_scheme = ""
 
-    for model in config['models']:
-        input_model = SentenceTransformer(model)
-        model_name = clean_model_name(model)
+    for model_name in config['models']:
+        input_model = SentenceTransformer(model_name)
+        model_name = clean_model_name(model_name)
         for strategy in config['chunk_strategies']:
             for chunk_size in config['chunk_sizes']:
                 # if its not hybrid do the overlaps, else just call it with the sizes and move on
@@ -94,13 +96,26 @@ if __name__ == "__main__":
                         collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
                         mean_precision_at_k = run_queries(
                             collection_name, input_model, queries)
+
+                        if mean_precision_at_k > max_precision_at_k_value:
+                            max_precision_at_k_value = mean_precision_at_k
+                            max_precision_at_k_scheme = collection_name
+
                         output.append({"chunk_scheme": collection_name,
                                        "mean_p@k": mean_precision_at_k})
                 else:
                     collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
                     mean_precision_at_k = run_queries(
                         collection_name, input_model, queries)
+
+                    if mean_precision_at_k > max_precision_at_k_value:
+                        max_precision_at_k_value = mean_precision_at_k
+                        max_precision_at_k_scheme = collection_name
+
                     output.append({"chunk_scheme": collection_name,
                                   "mean_p@k": mean_precision_at_k})
+    # add in the max value
+    output.insert(0, {"best scheme": max_precision_at_k_scheme,
+                  "highest p@k": max_precision_at_k_value})
     # write output
     write_json("./dev/data/experiment/output.json", output)
