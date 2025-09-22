@@ -82,22 +82,22 @@ if __name__ == "__main__":
 
     output = []  # list of json objects
 
-    for model_name in config['models']:
-        model = SentenceTransformer(model_name)
+    for model in config['models']:
+        input_model = SentenceTransformer(model)
         for strategy in config['chunk_strategies']:
             for chunk_size in config['chunk_sizes']:
                 # if its not hybrid do the overlaps, else just call it with the sizes and move on
                 if strategy != "hybrid":
                     for overlap in config['chunk_overlaps']:
-                        collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
+                        collection_name = f"MODEL{model}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
                         mean_precision_at_k = run_queries(
-                            collection_name, model, queries)
+                            collection_name, input_model, queries)
                         output.append({"chunk_scheme": collection_name,
                                        "mean_p@k": mean_precision_at_k})
                 else:
-                    collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
+                    collection_name = f"MODEL{model}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
                     mean_precision_at_k = run_queries(
-                        collection_name, model, queries)
+                        collection_name, input_model, queries)
                     output.append({"chunk_scheme": collection_name,
                                   "mean_p@k": mean_precision_at_k})
     # write output
