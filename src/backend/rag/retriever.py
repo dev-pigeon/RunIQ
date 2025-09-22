@@ -15,7 +15,7 @@ class Retriever:
         self.model_type = model_type
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
-    def retrieve_chunks(self, query_text, input_model=None):
+    def retrieve_chunks(self, query_text, input_model):
         self.logger.info("Retrieving context based on user query.")
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
@@ -29,7 +29,7 @@ class Retriever:
         )
         return results
 
-    def retrieve(self, query_text, input_model=None):
+    def retrieve(self, query_text, input_model):
         results = self.retrieve_chunks(query_text, input_model)
         # log the results
         result_ids = self.get_result_chunk_ids(results)
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     query = args.query
     retriever = Retriever()
-    retriever.retrieve(query)
+    # retriever.retrieve(query)
