@@ -34,6 +34,8 @@ class Pipeline:
                           chunk_overlap_percent=chunker_config['overlap_percent'], chunking_strategy=chunker_config['strategy'])
         ingestor = Ingestor()
         vectorizer = Vectorizer()
+        model_name = config['model']
+        logger.debug(f"Loading model {model_name}")
         model = SentenceTransformer(config['model'])
 
         for group in config['processing_groups']:

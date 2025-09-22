@@ -9,7 +9,7 @@ import logging
 
 
 class Retriever:
-    def __init__(self, collection_name="", model_type="all-MiniLM-L6-v2") -> None:
+    def __init__(self, collection_name="", model_type="BAAI/bge-base-en-v1.5") -> None:
         self.logger = logging.getLogger(__name__)
         self.vectorizer = Vectorizer()
         self.model_type = model_type
