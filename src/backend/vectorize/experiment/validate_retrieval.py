@@ -84,8 +84,8 @@ if __name__ == "__main__":
     output = []  # list of json objects
 
     for model in config['models']:
+        input_model = SentenceTransformer(model)
         model_name = clean_model_name(model)
-        input_model = SentenceTransformer(model_name)
         for strategy in config['chunk_strategies']:
             for chunk_size in config['chunk_sizes']:
                 # if its not hybrid do the overlaps, else just call it with the sizes and move on
