@@ -2,6 +2,7 @@ import os
 import json
 from rag.retriever import Retriever
 from rag.generator import Generator
+from sentence_transformers import SentenceTransformer  # type: ignore
 import logging
 
 
@@ -25,6 +26,10 @@ if __name__ == "__main__":
     with open(prompt_config_path, 'r') as file:
         config_prompt = json.load(file)['prompt']
 
+    embedding_model_name = "BAAI/bge-base-en-v1.5"
+    logger.debug(f"Loading embedding model {embedding_model_name}")
+    embedding_model = SentenceTransformer(embedding_model_name)
+
     retriever = Retriever()
     generator = Generator()
 
@@ -37,7 +42,8 @@ if __name__ == "__main__":
                 logger.info("Ending query sequence")
                 print("Exiting...")
                 break
-            context = retriever.retrieve(query_text)
+            context = retriever.retrieve(
+                query_text, input_model=embedding_model)
             response = generator.generate(query_text, context, config_prompt)
             print(response)
     except ConnectionError as e:
