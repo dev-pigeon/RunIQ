@@ -9,17 +9,17 @@ logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
 
 
 class Downloader:
-    def __init__(self, storage_directory, request_rate) -> None:
-        self.request_rate = request_rate
-        self.storage_directory = storage_directory
+    def __init__(self, config) -> None:
+        self.config = config
 
     def download_links(self, links):
         try:
             for link in links:
                 html = self.download_link(link)
-                file_path = self.storage_directory + self.get_file_name(link)
+                file_path = self.config['storage_directory'] + \
+                    self.get_file_name(link)
                 self.write_file(file_path, html)
-                time.sleep(self.request_rate)
+                time.sleep(self.config['request_rate'])
 
         except requests.RequestException as e:
             logger.warning(e)
@@ -49,7 +49,7 @@ class Downloader:
 
     def write_file(self, file_path, html_content):
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, 'w', encoding='utf-8') as file:
                 file.write(html_content)
             logger.debug(f"Wrote file to {file_path}")
         except FileNotFoundError:
