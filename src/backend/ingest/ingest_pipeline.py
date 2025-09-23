@@ -11,8 +11,7 @@ def run(config):
         processor = XMLProcessor(ingestion_group['sitemap_config'])
         downloader = Downloader(ingestion_group['downloader_config'])
         download_links = processor.process_sitemap()
-        links = download_links[:5]
-        downloader.download_links(links)
+        downloader.download_links(download_links)
     logging.info("Finished with ingestion pipeline")
 
 
