@@ -1,5 +1,5 @@
 import logging
-import argparse
+import requests  # type: ignore
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
@@ -11,10 +11,22 @@ class Downloader:
         self.storage_directory = storage_directory
 
     def download_links(self, links):
-        pass
+        try:
+            for link in links:
+                html = self.download_link(link)
+        except requests.RequestException as e:
+            logger.warning(e)
 
     def download_link(self, link):
-        pass
+        try:
+            response = requests.get(link)
+            response.raise_for_status()
+            html = response.text
+            logger.debug(f"Successfully downloaded html file from {link}")
+            return html
+        except requests.RequestException:
+            raise requests.RequestException(
+                f"Could not download html file at {link}")
 
     def get_file_name(self, link):
         index = link.rfind("/", 0, len(link) - 1)
