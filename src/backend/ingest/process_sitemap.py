@@ -9,8 +9,6 @@ from datetime import datetime, timezone
 import logging
 
 logger = logging.getLogger()
-logging.basicConfig(filename="ingest/ingestion.log", level=logging.DEBUG,
-                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 
 class XMLProcessor:
@@ -47,7 +45,6 @@ class XMLProcessor:
             link = url.find("loc").text
             last_mod = url.find("lastmod").text
             if self.url_is_valid(link, last_mod):
-                logger.debug(f"Adding link {link}")
                 filtered_links.append(link)
         return filtered_links
 

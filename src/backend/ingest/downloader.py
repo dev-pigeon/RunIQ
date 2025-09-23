@@ -5,8 +5,6 @@ import time
 from bs4 import BeautifulSoup  # type: ignore
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
-                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 
 class Downloader:
