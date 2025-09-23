@@ -1,6 +1,7 @@
 import logging
 import requests  # type: ignore
 import sys
+import time
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
@@ -8,7 +9,8 @@ logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
 
 
 class Downloader:
-    def __init__(self, storage_directory) -> None:
+    def __init__(self, storage_directory, request_rate) -> None:
+        self.request_rate = request_rate
         self.storage_directory = storage_directory
 
     def download_links(self, links):
@@ -17,6 +19,7 @@ class Downloader:
                 html = self.download_link(link)
                 file_path = self.storage_directory + self.get_file_name(link)
                 self.write_file(file_path, html)
+                time.sleep(self.request_rate)
 
         except requests.RequestException as e:
             logger.warning(e)
