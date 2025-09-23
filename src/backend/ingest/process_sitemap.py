@@ -5,7 +5,12 @@
 import argparse
 import json
 from bs4 import BeautifulSoup  # type: ignore
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
+import logging
+
+logger = logging.getLogger()
+logging.basicConfig(filename="ingest/ingestion.log", level=logging.DEBUG,
+                    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 
 class XMLProcessor:
@@ -14,13 +19,20 @@ class XMLProcessor:
         pass
 
     def open_xml_file(self, file_path):
-        with open(file_path, 'r', encoding='utf-8') as file:
-            raw_xml = file.read()
-        return raw_xml
+        logger.debug(f"Opening file found at {file_path}")
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                raw_xml = file.read()
+                return raw_xml
+        except FileNotFoundError:
+            logger.error(f"FILE NOT FOUND {file_path}")
 
     def process_sitemap(self):
-        xml_file = self.open_xml_file(self.config['sitemap_path'])
+        path = self.config['sitemap_path']
+        logger.info(f"Processing site map {path}")
+        xml_file = self.open_xml_file(path)
         download_links = self.get_download_links(xml_file)
+        logger.info(f"Finished processing sitemap {path}")
         return download_links
 
     def get_download_links(self, xml_file):
@@ -35,6 +47,7 @@ class XMLProcessor:
             link = url.find("loc").text
             last_mod = url.find("lastmod").text
             if self.url_is_valid(link, last_mod):
+                logger.debug(f"Adding link {link}")
                 filtered_links.append(link)
         return filtered_links
 
