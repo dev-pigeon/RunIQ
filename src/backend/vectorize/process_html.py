@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 from bs4 import BeautifulSoup  # type: ignore
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -142,9 +143,12 @@ class HTMLProcessor():
 
     def process_files(self):
         logger.info("Processing html files.")
-        for path in self.config['input_paths']:
+        dir_path = self.config['input_directory']
+        for filename in os.listdir(dir_path):
+            path = os.path.join(dir_path, filename)
             source = self.get_source_title(path)
             self.process_html_file(path, source)
+
         logger.info("Finished processing html files.")
 
 
