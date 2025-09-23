@@ -4,6 +4,7 @@
 # config driven of course
 import argparse
 import json
+from bs4 import BeautifulSoup  # type: ignore
 
 
 class XMLProcessor:
@@ -18,7 +19,23 @@ class XMLProcessor:
 
     def process_sitemap(self):
         xml_file = self.open_xml_file(self.config['sitemap_path'])
-        pass
+        download_links = self.get_download_links(xml_file)
+        return download_links
+
+    def get_download_links(self, xml_file):
+        soup = BeautifulSoup(xml_file, 'xml')
+        link_tags = soup.find_all('loc')
+        all_links = [tag.text for tag in link_tags]
+        valid_links = self.filter_links(all_links)
+        return valid_links
+
+    def filter_links(self, all_links):
+        key = self.config['search_key']
+        training_links = [link for link in all_links if key in link]
+        ignored_domains = self.config['ignored_domains']
+        valid_training_links = [link for link in training_links if not any(
+            ignored_domain in link for ignored_domain in ignored_domains)]
+        return valid_training_links
 
 
 if __name__ == "__main__":
@@ -32,4 +49,4 @@ if __name__ == "__main__":
         config = json.load(file)
 
     processor = XMLProcessor(config)
-    processor.process_sitemap()
+    download_links = processor.process_sitemap()
