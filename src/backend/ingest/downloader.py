@@ -2,6 +2,7 @@ import logging
 import requests  # type: ignore
 import sys
 import time
+from bs4 import BeautifulSoup  # type: ignore
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, filename="ingest/ingestion.log",
@@ -16,9 +17,11 @@ class Downloader:
         try:
             for link in links:
                 html = self.download_link(link)
+                soup = BeautifulSoup(html, 'html.parser')
+                pretty_html = soup.prettify()
                 file_path = self.config['storage_directory'] + \
                     self.get_file_name(link)
-                self.write_file(file_path, html)
+                self.write_file(file_path, pretty_html)
                 time.sleep(self.config['request_rate'])
 
         except requests.RequestException as e:
