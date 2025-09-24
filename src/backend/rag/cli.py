@@ -46,5 +46,7 @@ if __name__ == "__main__":
                 query_text, input_model=embedding_model)
             response = generator.generate(query_text, context, config_prompt)
             print(response)
+            print(
+                "********************************************************************************")
     except ConnectionError as e:
         logger.error(e)
