@@ -41,7 +41,7 @@ class Pipeline:
         for group in config['processing_groups']:
             # process files
             logger.info(f"Sending files from {group['source']} for processing")
-            processing_config = open_json(group['processing_config_path'])
+            processing_config = group['processing_config']
             processor = HTMLProcessor(processing_config)
             processor.process_files()
 
