@@ -21,7 +21,7 @@ class Retriever:
         query_embedding = self.vectorizer.embed_text(query_text, input_model)
         results = collection.query(
             query_embeddings=[query_embedding],
-            n_results=10,
+            n_results=5,
             include=['documents', 'metadatas', 'embeddings']
         )
         return results
