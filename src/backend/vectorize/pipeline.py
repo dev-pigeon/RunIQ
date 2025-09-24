@@ -6,6 +6,7 @@ from vectorize.chunker import Chunker
 from vectorize.ingestor import Ingestor
 from vectorize.vectorizer import Vectorizer
 from sentence_transformers import SentenceTransformer  # type: ignore
+import os
 
 
 # set up logger
@@ -41,13 +42,16 @@ class Pipeline:
         for group in config['processing_groups']:
             # process files
             logger.info(f"Sending files from {group['source']} for processing")
-            processing_config = open_json(group['processing_config_path'])
+            processing_config = group['processing_config']
             processor = HTMLProcessor(processing_config)
             processor.process_files()
 
             # chunk & embed processed files
-            chunking_config = open_json(group['chunking_config_path'])
-            for path in chunking_config['paths']:
+            chunking_config = group['chunking_config']
+            # should be directory based now
+            dir_path = chunking_config['input_directory']
+            for filename in os.listdir(dir_path):
+                path = os.path.join(dir_path, filename)
                 data = open_json(path)
                 chunks = chunker.chunk_file(data)
                 vectorizer.embed_and_insert(chunks, ingestor, model)
