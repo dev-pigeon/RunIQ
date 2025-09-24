@@ -35,7 +35,7 @@ class Chunker:
             return []
 
     def has_key(self, data, key):
-        return key in data
+        return key in data and data[key] is not None
 
     def make_chunk(self, text, chunk_count, source):
         chunk = {
