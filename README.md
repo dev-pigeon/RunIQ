@@ -25,3 +25,10 @@ I used to be a competitive cross-country runner with accesss to resources such a
   - Tested 5 embedding models, each with 21 hyperparameter variations for chunking.
   - Optimal model + chunking combination selected based on retrieval performance.
 
+## Validation Results
+| Model | Chunk Size | Chunk Overlap | Chunk Strategy | P@5 |
+|:-----------|:----------------------------|:------------------:| :------------------: | :------------------: |
+| bge-base-en-v1.5 | 256 | 50 (20 percent) | Naive (token-based) | .79
+
+
+
