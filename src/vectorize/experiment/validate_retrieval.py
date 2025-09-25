@@ -81,9 +81,7 @@ if __name__ == "__main__":
     queries_path = "./dev/data/experiment/queries.json"
     queries = open_json(queries_path)
 
-    output = []  # list of json objects
-    max_precision_at_k_value = 0
-    max_precision_at_k_scheme = ""
+    output = []
 
     for k_value in config['k_values']:
         for model_name in config['models']:
@@ -98,25 +96,18 @@ if __name__ == "__main__":
                             mean_precision_at_k = run_queries(
                                 collection_name, input_model, queries, k_value)
 
-                            if mean_precision_at_k > max_precision_at_k_value:
-                                max_precision_at_k_value = mean_precision_at_k
-                                max_precision_at_k_scheme = collection_name
+                            record = {"chunk_scheme": collection_name,
+                                      "mean_p@k": mean_precision_at_k, "k": k_value}
+                            output.append(record)
 
-                            output.append({"chunk_scheme": collection_name,
-                                           "mean_p@k": mean_precision_at_k})
                     else:
                         collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
                         mean_precision_at_k = run_queries(
                             collection_name, input_model, queries, k_value)
 
-                        if mean_precision_at_k > max_precision_at_k_value:
-                            max_precision_at_k_value = mean_precision_at_k
-                            max_precision_at_k_scheme = collection_name
+                        record = {"chunk_scheme": collection_name,
+                                  "mean_p@k": mean_precision_at_k, "k": k_value}
+                        output.append(record)
 
-                        output.append({"chunk_scheme": collection_name,
-                                       "mean_p@k": mean_precision_at_k})
-    # add in the max value
-    output.insert(0, {"best scheme": max_precision_at_k_scheme,
-                  "highest p@k": max_precision_at_k_value})
     # write output
     write_json("./dev/data/experiment/output.json", output)
