@@ -19,20 +19,25 @@ def write_json(file_path, data):
 
 
 def run_queries(collection_name, input_model, queries, k):
-    running_sum = 0
+    running_p_at_k, running_map = 0, 0
     retriever = Retriever(collection_name=collection_name, k=k)
     vectorizer = Vectorizer(collection_name=collection_name)
     logger.debug(f"Calculating p@{k} for {collection_name}")
     for query in queries['queries']:
         results = retriever.retrieve_chunks(query['text'], input_model)
-        precision_at_k = calculate_precision_at_k(
+        precision_at_k, average_precision = calculate_precision_values(
             results, query, vectorizer, input_model)
-        running_sum += precision_at_k
-    mean_precision_at_k = running_sum / len(queries['queries'])
-    return mean_precision_at_k
+
+        running_p_at_k += precision_at_k
+        running_map += average_precision
+
+    num_queries = len(queries['queries'])
+    mean_precision_at_k = running_p_at_k / num_queries
+    mean_average_precision = running_map / num_queries
+    return mean_precision_at_k, mean_average_precision
 
 
-def calculate_precision_at_k(results, query, vectorizer, input_model):
+def calculate_precision_values(results, query, vectorizer, input_model):
     result_embeddings = results['embeddings'][0]
     result_texts = results['documents'][0]
 
@@ -41,6 +46,7 @@ def calculate_precision_at_k(results, query, vectorizer, input_model):
     query_response_text = query['relevant_response']
 
     num_relevant_chunks = 0
+    precision_values = []
     k = len(result_embeddings)
 
     for i in range(0, k):
@@ -50,9 +56,23 @@ def calculate_precision_at_k(results, query, vectorizer, input_model):
             result_embedding, query_response_embedding)
         if cosine_similarity > 0.75 or query_response_text in result_text:
             num_relevant_chunks += 1
+            average_precision = num_relevant_chunks / \
+                (i + 1)  # avoids divide by 0
+            precision_values.append(average_precision)
 
     precision_at_k = num_relevant_chunks / k
-    return precision_at_k
+    average_precision = calculate_average_precision(
+        precision_values)
+    return precision_at_k, average_precision
+
+
+def calculate_average_precision(precision_values):
+    map = 0
+    if len(precision_values) > 0:
+        for value in precision_values:
+            map += value
+        map /= len(precision_values)
+    return map
 
 
 def calculate_cosine_similarity(result_embedding, query_response_embedding):
@@ -93,19 +113,19 @@ if __name__ == "__main__":
                     if strategy != "hybrid":
                         for overlap in config['chunk_overlaps']:
                             collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
-                            mean_precision_at_k = run_queries(
+                            mean_precision_at_k, mean_average_precision = run_queries(
                                 collection_name, input_model, queries, k_value)
 
-                            record = {"chunk_scheme": collection_name,
+                            record = {"chunk_scheme": collection_name, "MAP": mean_average_precision,
                                       "mean_p@k": mean_precision_at_k, "k": k_value}
                             output.append(record)
 
                     else:
                         collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
-                        mean_precision_at_k = run_queries(
+                        mean_precision_at_k, mean_average_precision = run_queries(
                             collection_name, input_model, queries, k_value)
 
-                        record = {"chunk_scheme": collection_name,
+                        record = {"chunk_scheme": collection_name, "MAP": mean_average_precision,
                                   "mean_p@k": mean_precision_at_k, "k": k_value}
                         output.append(record)
 
