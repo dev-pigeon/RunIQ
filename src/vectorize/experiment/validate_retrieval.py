@@ -18,11 +18,11 @@ def write_json(file_path, data):
         json.dump(data, file, indent=4)
 
 
-def run_queries(collection_name, input_model, queries):
+def run_queries(collection_name, input_model, queries, k):
     running_sum = 0
-    retriever = Retriever(collection_name=collection_name)
+    retriever = Retriever(collection_name=collection_name, k=k)
     vectorizer = Vectorizer(collection_name=collection_name)
-    logger.debug(f"Calculating p@k for {collection_name}")
+    logger.debug(f"Calculating p@{k} for {collection_name}")
     for query in queries['queries']:
         results = retriever.retrieve_chunks(query['text'], input_model)
         precision_at_k = calculate_precision_at_k(
@@ -81,41 +81,33 @@ if __name__ == "__main__":
     queries_path = "./dev/data/experiment/queries.json"
     queries = open_json(queries_path)
 
-    output = []  # list of json objects
-    max_precision_at_k_value = 0
-    max_precision_at_k_scheme = ""
+    output = []
 
-    for model_name in config['models']:
-        input_model = SentenceTransformer(model_name)
-        model_name = clean_model_name(model_name)
-        for strategy in config['chunk_strategies']:
-            for chunk_size in config['chunk_sizes']:
-                # if its not hybrid do the overlaps, else just call it with the sizes and move on
-                if strategy != "hybrid":
-                    for overlap in config['chunk_overlaps']:
-                        collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
+    for k_value in config['k_values']:
+        for model_name in config['models']:
+            input_model = SentenceTransformer(model_name)
+            model_name = clean_model_name(model_name)
+            for strategy in config['chunk_strategies']:
+                for chunk_size in config['chunk_sizes']:
+                    # if its not hybrid do the overlaps, else just call it with the sizes and move on
+                    if strategy != "hybrid":
+                        for overlap in config['chunk_overlaps']:
+                            collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAP{overlap}"
+                            mean_precision_at_k = run_queries(
+                                collection_name, input_model, queries, k_value)
+
+                            record = {"chunk_scheme": collection_name,
+                                      "mean_p@k": mean_precision_at_k, "k": k_value}
+                            output.append(record)
+
+                    else:
+                        collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
                         mean_precision_at_k = run_queries(
-                            collection_name, input_model, queries)
+                            collection_name, input_model, queries, k_value)
 
-                        if mean_precision_at_k > max_precision_at_k_value:
-                            max_precision_at_k_value = mean_precision_at_k
-                            max_precision_at_k_scheme = collection_name
+                        record = {"chunk_scheme": collection_name,
+                                  "mean_p@k": mean_precision_at_k, "k": k_value}
+                        output.append(record)
 
-                        output.append({"chunk_scheme": collection_name,
-                                       "mean_p@k": mean_precision_at_k})
-                else:
-                    collection_name = f"MODEL{model_name}-TYPE{strategy}-CHUNKS{chunk_size}-OVERLAPnone"
-                    mean_precision_at_k = run_queries(
-                        collection_name, input_model, queries)
-
-                    if mean_precision_at_k > max_precision_at_k_value:
-                        max_precision_at_k_value = mean_precision_at_k
-                        max_precision_at_k_scheme = collection_name
-
-                    output.append({"chunk_scheme": collection_name,
-                                  "mean_p@k": mean_precision_at_k})
-    # add in the max value
-    output.insert(0, {"best scheme": max_precision_at_k_scheme,
-                  "highest p@k": max_precision_at_k_value})
     # write output
     write_json("./dev/data/experiment/output.json", output)
