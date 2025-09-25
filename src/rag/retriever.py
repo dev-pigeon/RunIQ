@@ -9,9 +9,10 @@ import logging
 
 
 class Retriever:
-    def __init__(self, collection_name="") -> None:
+    def __init__(self, collection_name="", k=5) -> None:
         self.logger = logging.getLogger(__name__)
         self.vectorizer = Vectorizer()
+        self.k = k
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
     def retrieve_chunks(self, query_text, input_model):
@@ -21,7 +22,7 @@ class Retriever:
         query_embedding = self.vectorizer.embed_text(query_text, input_model)
         results = collection.query(
             query_embeddings=[query_embedding],
-            n_results=5,
+            n_results=self.k,
             include=['documents', 'metadatas', 'embeddings']
         )
         return results
