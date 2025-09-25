@@ -1,6 +1,5 @@
 from vectorize.ingestor import Ingestor
 import util.db as db
-from sentence_transformers import SentenceTransformer  # type: ignore
 import logging
 import os
 
