@@ -1,5 +1,4 @@
-src/backend/venv
-src/backend/dev
+src/venv
+src/dev
 __pycache__
 *.log
-src/backend/rag/rag.log

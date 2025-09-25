@@ -1,7 +1,6 @@
 import json
 import argparse
 import logging
-import re
 
 
 class Chunker:
