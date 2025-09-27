@@ -6,6 +6,7 @@ from vectorize.vectorizer import Vectorizer
 import os
 import util.db as db
 import logging
+from langchain.schema import Document  # type: ignore
 
 
 class Retriever:
@@ -14,6 +15,14 @@ class Retriever:
         self.vectorizer = Vectorizer()
         self.k = k
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
+        self.model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+
+    def get_relevant_documents(self, query: str):
+        documents = self.retrieve_chunks(query, self.model)
+        docs = [
+            Document(page_content=text[0], metadata=meta[0]) for text, meta in zip(documents['documents'], documents['metadatas'])
+        ]
+        return docs
 
     def retrieve_chunks(self, query_text, input_model):
         self.logger.info("Retrieving context based on user query.")
@@ -56,4 +65,5 @@ if __name__ == "__main__":
     query = args.query
     retriever = Retriever()
     model = SentenceTransformer("BAAI/bge-base-en-v1.5")
-    retriever.retrieve(query, input_model=model)
+    retriever.get_relevant_documents(
+        "What is the best way to recover from hip injury?")
