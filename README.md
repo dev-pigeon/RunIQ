@@ -18,6 +18,8 @@ I used to be a competitive cross-country runner with accesss to resources such a
 - **RAG CLI** - Simple interactive command-line interface for querying the dataset.
   - _Retriever_: Embeds the user query and fetches relevant context.
   - _Generator_: Creates a response based on retriever context.
+  - _ConversationBuffer_: Maintains a rolling summary of recent conversation turns.
+  - _QueryRephraser_: Rephrases the user query relative to the conversation summary.
 - **Extensibility**
   - Intermediary storage of HTML and JSON allows for the exploration of different chunk schemes and embedding models.
   - Adjust or test different chunking schemes without re-downloading data.
@@ -55,7 +57,5 @@ I used to be a competitive cross-country runner with accesss to resources such a
 
 ## Future Considerations 🔮
 
-- **Optimizing Generation**: Explore different generation models and optimization techniques to reduce query to response latency.
-- **Optimizing Ingestion**: Make preprocessing more efficient by introducing parralel workers (and once Python3.14 comes out - threads!).
+- **Optimizing Ingestion**: Make processing more efficient by introducing parallel workers (and once Python3.14 comes out - threads!).
 - **Automating Ingestion**: Schedule regular updates or new data sources with minimal manual intervention.
-- **Short Term Memory**: Enable the generator to maintain context across queries for more cohesive multi-turn conversations.
