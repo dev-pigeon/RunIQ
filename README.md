@@ -41,15 +41,27 @@ I used to be a competitive cross-country runner with accesss to resources such a
 
 <br>
 
-## Example Query (RAG CLI) 🧠
+## Example Interaction (RAG CLI) 🧠
 
-#### Query: What stretches can I do to prevent injury?
+#### Query:
+
+What are foam rollers used for?
 
 #### Response:
 
-1. Hip Flexor Stretch: Start by standing with feet hip-width apart. Draw one leg up to hip level and let the knee fall outward as you grab the ankle to support the leg. Hold for a brief stretch before performing the same move on the opposite side. Continue to alternate. This stretch promotes hip flexion, abduction, and external rotation to allow for improved hip mobility during your workout.
+The purpose of foam rollers for runners is primarily to provide a self-massage that helps ease muscle tightness and stiffness after a workout. This process temporarily improves range of motion and provides a feel-good effect. However, it's essential to note that foam rolling does not physically alter the muscle tissue or break up scar tissues in a short period, as some people might believe. Instead, it changes the way your brain experiences these sensations during the recovery process, leading to relaxation of tight spots in muscles.
 
-2. Hamstring Stretch: From standing, bend one knee as you step the other heel forward with the straight leg. Send hips back to bend forward, scooping both hands along the floor from hip to toe before returning to stand. Repeat on the other leg. This is a great stretch to promote hamstring lengthening for reduced risk of a hamstring injury while running.
+Regarding vibrating foam rollers, while they might enhance the benefits of regular foam rolling, the data supporting this claim is still controversial. If you enjoy using a vibrating foam roller or find it more effective for your personal recovery needs, feel free to continue using it. However, people with certain health conditions such as fragile skin, seizure disorder, bleeding and clotting issues, a pacemaker, or those who are pregnant should not use them. It's also essential to be cautious when using vibrating foam rollers on an injury or to ignore numbness, tingling, or burning pain while using them.
+
+---
+
+#### Query:
+
+Are they good for relieving soreness?
+
+#### Response:
+
+Yes, foam rollers can help alleviate muscle soreness after exercise. This is primarily due to their ability to improve circulation and reduce muscle tension, rather than physically altering the muscle tissue as some people may believe. Foam rolling before a run can also help prepare your muscles for optimal performance by loosening them up, elevating breathing and heart rate, and psychologically preparing you for exercise. Additionally, foam rolling after a workout can relieve excess tension and stimulate the release of neurotransmitters that boost relaxation, potentially reducing feelings of fatigue and improving recovery. However, it's important to remember that foam rollers may lose their effectiveness over time and that harder surfaces are generally better, but new users might want to start with a softer, non-textured roller.
 
 > _Note_: The system can produce longer, detailed multi-step responses with full instructions.
 
