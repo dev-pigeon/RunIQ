@@ -54,7 +54,6 @@ if __name__ == "__main__":
                 break
             rephrased_query = rephraser.rephrase_query(
                 query_text, conversation_buffer.get_context())
-            print(rephrased_query)
             context = retriever.retrieve(
                 rephrased_query, input_model=embedding_model)
             response = generator.generate(
