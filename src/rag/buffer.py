@@ -10,7 +10,7 @@ class Buffer:
         self.history.append(entry)
 
     def format_entry(self, query, response):
-        entry = f"[USER:]\n{query}\n[RESPONSE:]{response}"
+        entry = f"user:\n{query}\nresponse:{response}"
         return entry
 
     def to_string(self):
