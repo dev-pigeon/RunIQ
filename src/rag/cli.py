@@ -44,7 +44,8 @@ if __name__ == "__main__":
                 break
             context = retriever.retrieve(
                 query_text, input_model=embedding_model)
-            response = generator.generate(query_text, context, config_prompt)
+            response = generator.generate(
+                query_text, context, config_prompt)
             print(response)
             print(
                 "********************************************************************************")

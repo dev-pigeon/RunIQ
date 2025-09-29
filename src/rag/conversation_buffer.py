@@ -1,0 +1,40 @@
+import logging
+import ollama  # type:ignore
+
+
+class ConversationBuffer:
+    def __init__(self, max_turns=3) -> None:
+        self.max_turns = max_turns
+        self.history = []
+        self.summary = ""
+        self.model = "mistral"
+        self.logger = logging.getLogger(__name__)
+
+    def add(self, query, response):
+        entry = self.format_entry(query, response)
+        if len(self.history) >= self.max_turns:
+            self.logger.info("Evicting oldest turn")
+            self.history.pop(0)
+        self.history.append(entry)
+        self.summarize()
+
+    def get_context(self):
+        return self.summary
+
+    def format_entry(self, query, response):
+        entry = f"user:\n{query}\nresponse:{response}"
+        return entry
+
+    def summarize(self):
+        context_to_summarize = self.summary + "\n" + "\n".join(self.history)
+        self.logger.info(
+            f"Calling summarizer with current context of {len(self.history)} turns")
+        prompt = f"[INSTRUCTIONS]\nProvide a concise and comprehensive summary of the conversation below. The summary must cover all key points and main ideas presented in the original text.\n\n[CONTENT]\n{context_to_summarize}"
+        new_summary = ollama.generate(model=self.model, prompt=prompt)
+        self.summary = new_summary['response']
+
+    def to_string(self):
+        history_string = ""
+        for entry in self.history:
+            history_string += entry
+        return history_string
