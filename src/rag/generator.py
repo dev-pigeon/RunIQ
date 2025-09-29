@@ -11,7 +11,8 @@ class Generator:
     def generate(self, query_text, context, config_prompt):
         try:
             self.logger.info("Generating response from user input and context")
-            prompt = config_prompt.format(query_text, context)
+            prompt = config_prompt.format(
+                query_text=query_text, context=context)
             response = ollama.generate(model=self.MODEL, prompt=prompt)
 
             return response['response']
