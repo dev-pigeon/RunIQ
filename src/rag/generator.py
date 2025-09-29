@@ -8,10 +8,10 @@ class Generator:
         self.MODEL = "mistral"
         pass
 
-    def generate(self, query_text, context, config_prompt, history_string):
+    def generate(self, query_text, context, config_prompt):
         try:
             self.logger.info("Generating response from user input and context")
-            prompt = config_prompt.format(history_string, query_text, context)
+            prompt = config_prompt.format(query_text, context)
             response = ollama.generate(model=self.MODEL, prompt=prompt)
 
             return response['response']

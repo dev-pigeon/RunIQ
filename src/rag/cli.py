@@ -47,7 +47,7 @@ if __name__ == "__main__":
             context = retriever.retrieve(
                 query_text, input_model=embedding_model)
             response = generator.generate(
-                query_text, context, config_prompt, memory_buffer.to_string())
+                query_text, context, config_prompt)
             print(response)
             print(
                 "********************************************************************************")
