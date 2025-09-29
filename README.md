@@ -51,8 +51,6 @@ What are foam rollers used for?
 
 The purpose of foam rollers for runners is primarily to provide a self-massage that helps ease muscle tightness and stiffness after a workout. This process temporarily improves range of motion and provides a feel-good effect. However, it's essential to note that foam rolling does not physically alter the muscle tissue or break up scar tissues in a short period, as some people might believe. Instead, it changes the way your brain experiences these sensations during the recovery process, leading to relaxation of tight spots in muscles.
 
-Regarding vibrating foam rollers, while they might enhance the benefits of regular foam rolling, the data supporting this claim is still controversial. If you enjoy using a vibrating foam roller or find it more effective for your personal recovery needs, feel free to continue using it. However, people with certain health conditions such as fragile skin, seizure disorder, bleeding and clotting issues, a pacemaker, or those who are pregnant should not use them. It's also essential to be cautious when using vibrating foam rollers on an injury or to ignore numbness, tingling, or burning pain while using them.
-
 ---
 
 #### Query:
@@ -63,7 +61,7 @@ Are they good for relieving soreness?
 
 Yes, foam rollers can help alleviate muscle soreness after exercise. This is primarily due to their ability to improve circulation and reduce muscle tension, rather than physically altering the muscle tissue as some people may believe. Foam rolling before a run can also help prepare your muscles for optimal performance by loosening them up, elevating breathing and heart rate, and psychologically preparing you for exercise. Additionally, foam rolling after a workout can relieve excess tension and stimulate the release of neurotransmitters that boost relaxation, potentially reducing feelings of fatigue and improving recovery. However, it's important to remember that foam rollers may lose their effectiveness over time and that harder surfaces are generally better, but new users might want to start with a softer, non-textured roller.
 
-> _Note_: The system can produce longer, detailed multi-step responses with full instructions.
+> _Note_: The responses shown above are trimmed for brevity. The actual output can include more detailed, step-by-step explanations where applicable.
 
 <br>
 
