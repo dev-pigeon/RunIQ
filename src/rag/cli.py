@@ -2,7 +2,6 @@ import os
 import json
 from rag.retriever import Retriever
 from rag.generator import Generator
-from rag.buffer import Buffer
 from sentence_transformers import SentenceTransformer  # type: ignore
 import logging
 
@@ -33,7 +32,6 @@ if __name__ == "__main__":
 
     retriever = Retriever()
     generator = Generator()
-    memory_buffer = Buffer()
 
     logger.info("Beginning query sequence.")
 
@@ -51,6 +49,5 @@ if __name__ == "__main__":
             print(response)
             print(
                 "********************************************************************************")
-            memory_buffer.add(query_text, response)
     except ConnectionError as e:
         logger.error(e)

@@ -1,9 +1,8 @@
 import logging
-import subprocess
 import ollama  # type:ignore
 
 
-class Buffer:
+class ConversationBuffer:
     def __init__(self, max_turns=1) -> None:
         self.max_turns = max_turns
         self.history = []
