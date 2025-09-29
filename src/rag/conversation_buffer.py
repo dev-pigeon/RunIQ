@@ -3,7 +3,7 @@ import ollama  # type:ignore
 
 
 class ConversationBuffer:
-    def __init__(self, max_turns=1) -> None:
+    def __init__(self, max_turns=3) -> None:
         self.max_turns = max_turns
         self.history = []
         self.summary = ""
