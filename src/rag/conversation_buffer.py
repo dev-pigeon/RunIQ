@@ -11,7 +11,7 @@ class ConversationBuffer:
         self.logger = logging.getLogger(__name__)
         self.prompt_template = summerization_prompt_template
 
-    def add(self, query, response):
+    def add_turn(self, query, response):
         entry = self.format_entry(query, response)
         if len(self.history) >= self.max_turns:
             self.logger.info("Evicting oldest turn")
