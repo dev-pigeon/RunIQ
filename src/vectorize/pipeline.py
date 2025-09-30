@@ -79,6 +79,7 @@ class Pipeline:
         timer.start()
         workload = self.initialize_workload(config['processing_groups'])
         process_workloads = self.divide_workload(workload)
+        print(process_workloads[0]['tasks'][0])
 
         # timer.stop()
         # elapsed_time = timer.get_time()

@@ -22,6 +22,13 @@ class Vectorizer:
         ingestor.flush_buffer(collection)
         self.logger.info("Finished with embed / insert process.")
 
+    def embed_chunks(self, chunks, model):
+        embedded_chunks = []
+        for chunk in chunks:
+            embedded_chunk = self.vectorize_chunk(chunk, model)
+            embedded_chunks.append(embedded_chunk)
+        return embedded_chunks
+
     def vectorize_chunk(self, chunk, model):
         embedding = self.embed_text(chunk['document'], model)
         chunk['embedding'] = embedding
