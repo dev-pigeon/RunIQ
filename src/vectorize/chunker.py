@@ -4,8 +4,8 @@ import logging
 
 
 class Chunker:
-    def __init__(self, chunk_size=256, chunk_overlap_percent=.20, chunking_strategy="naive") -> None:
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, id, chunk_size=256, chunk_overlap_percent=.20, chunking_strategy="naive") -> None:
+        self.logger = logging.getLogger(id)
         self.MAX_CHUNK_SIZE = chunk_size  # tokens
         self.CHUNK_OVERLAP = int(chunk_size * chunk_overlap_percent)
         self.strategy = chunking_strategy
@@ -173,5 +173,5 @@ if __name__ == "__main__":
     with open(data_path, 'r') as file:
         data = json.load(file)
 
-    chunker = Chunker(chunking_strategy="hybrid")
+    chunker = Chunker(chunking_strategy="hybrid", id="test chunker")
     chunks = chunker.chunk_file(data)

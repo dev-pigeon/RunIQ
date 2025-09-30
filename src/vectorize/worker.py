@@ -38,9 +38,9 @@ class Worker(Process):
     def run(self):
         # initialize resources
         chunker_config = self.config['chunker']
-        chunker = Chunker(
-            chunker_config['chunk_size'], chunker_config['overlap_percent'], chunker_config['strategy'])
-        vectorizer = Vectorizer()
+        chunker = Chunker(f"{self.id}-chunker",
+                          chunker_config['chunk_size'], chunker_config['overlap_percent'], chunker_config['strategy'])
+        vectorizer = Vectorizer(id=f"{self.id}-vectorizer")
         model = SentenceTransformer(self.config['model'])
 
         # complete tasks
