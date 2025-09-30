@@ -51,9 +51,14 @@ class Ingestor(Process):
     def run(self):
         client = db.get_chroma_client()
         collection = db.get_chroma_collection(client, self.collection_name)
-        while True:
+        run = True
+        while run:
             while not self.input_queue.empty():
-                self.buffer.extend(self.input_queue.get())
+                chunks = self.input_queue.get()
+                if chunks is None:
+                    self.flush_buffer(collection)
+                    run = False
+                    break
+                self.buffer.extend(chunks)
                 if len(self.buffer) >= self.MAX_BUFFER_SIZE:
                     self.flush_buffer(collection)
-            # if this condition is not true then look into how I would just sleep / wait

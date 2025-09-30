@@ -1,12 +1,10 @@
 import argparse
 import json
 import logging
-from vectorize.process_html import HTMLProcessor
-from vectorize.chunker import Chunker
-from vectorize.ingestor import Ingestor
-from vectorize.vectorizer import Vectorizer
+from vectorize.worker import Worker
+from multiprocessing import Queue
 from util.timer import Timer
-from sentence_transformers import SentenceTransformer  # type: ignore
+from vectorize.ingestor import Ingestor
 import os
 
 
@@ -28,6 +26,18 @@ def open_json(file_path):
 class Pipeline:
     def __init__(self) -> None:
         pass
+
+    def start_workers(self, config, ingesting_queue: Queue):
+        workload = self.initialize_workload(config['processing_groups'])
+        process_workloads = self.divide_workload(workload)
+        workers = []
+        for i, process_workload in enumerate(process_workloads):
+            worker = Worker(
+                config['worker_config'], process_workload, ingesting_queue, f"Worker-{i}")
+            workers.append(worker)
+            worker.start()
+
+        return workers
 
     def initialize_workload(self, processing_groups):
         workload = {
@@ -77,14 +87,23 @@ class Pipeline:
         logger.info("Beginning vectorization pipeline.")
         timer = Timer()
         timer.start()
-        workload = self.initialize_workload(config['processing_groups'])
-        process_workloads = self.divide_workload(workload)
-        print(process_workloads[0]['tasks'][0])
+        ingesting_queue = Queue()
+        # start them workers
+        logger.debug("Starting workers")
+        ingestor = Ingestor(ingesting_queue, config['chroma_collection_name'])
+        ingestor.start()
+        workers = self.start_workers(config, ingesting_queue)
 
-        # timer.stop()
-        # elapsed_time = timer.get_time()
-        # logger.info(
-        #     f"Finished with vectorization pipeline in {elapsed_time:.3f} seconds")
+        for w in workers:
+            w.join()
+
+        ingestor.input_queue.put(None)
+        ingestor.join()
+
+        timer.stop()
+        elapsed_time = timer.get_time()
+        logger.info(
+            f"Finished with vectorization pipeline in {elapsed_time:.3f} seconds")
 
 
 if __name__ == "__main__":
