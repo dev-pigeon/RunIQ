@@ -29,40 +29,41 @@ class Pipeline:
     def __init__(self) -> None:
         pass
 
+    def initialize_workload(self, processing_groups):
+        workload = {
+            "group_configs": [],
+            "tasks": []
+        }
+
+        for group in processing_groups:
+            group_tasks = self.create_tasks(group)
+            workload['tasks'].extend(group_tasks)
+            workload['group_configs'].append(group)
+
+        return workload
+
+    def create_tasks(self, group):
+        tasks = []
+        group_directory = group['input_directory']
+        for filename in os.listdir(group_directory):
+            path = os.path.join(group_directory, filename)
+            task = {
+                "processing_path": path,
+                "group_config_id": group['source']
+            }
+            tasks.append(task)
+        return tasks
+
     def run(self, config):
         logger.info("Beginning vectorization pipeline.")
-        chunker_config = config['worker_parameters']['chunker']
-        chunker = Chunker(chunk_size=chunker_config['chunk_size'],
-                          chunk_overlap_percent=chunker_config['overlap_percent'], chunking_strategy=chunker_config['strategy'])
-        ingestor = Ingestor()
-        vectorizer = Vectorizer()
         timer = Timer()
-        model_name = config['model']
-        logger.debug(f"Loading model {model_name}")
-        model = SentenceTransformer(config['model'])
-
         timer.start()
-        for group in config['processing_groups']:
-            # process files
-            logger.info(f"Sending files from {group['source']} for processing")
-            processing_config = group['processing_config']
-            processor = HTMLProcessor(processing_config)
-            processor.process_files()
+        workload = self.initialize_workload(config['processing_groups'])
 
-            # chunk & embed processed files
-            chunking_config = group['chunking_config']
-            # should be directory based now
-            dir_path = chunking_config['input_directory']
-            for filename in os.listdir(dir_path):
-                path = os.path.join(dir_path, filename)
-                data = open_json(path)
-                chunks = chunker.chunk_file(data)
-                vectorizer.embed_and_insert(chunks, ingestor, model)
-
-        timer.stop()
-        elapsed_time = timer.get_time()
-        logger.info(
-            f"Finished with vectorization pipeline in {elapsed_time:.3f} seconds")
+        # timer.stop()
+        # elapsed_time = timer.get_time()
+        # logger.info(
+        #     f"Finished with vectorization pipeline in {elapsed_time:.3f} seconds")
 
 
 if __name__ == "__main__":
