@@ -31,16 +31,35 @@ class Pipeline:
 
     def initialize_workload(self, processing_groups):
         workload = {
-            "group_configs": [],
+            "group_configs": {},
             "tasks": []
         }
 
         for group in processing_groups:
             group_tasks = self.create_tasks(group)
             workload['tasks'].extend(group_tasks)
-            workload['group_configs'].append(group)
+            group_config_id = group['source']
+            workload['group_configs'][group_config_id] = group
 
         return workload
+
+    def divide_workload(self, workload, num_processes=4):
+        # initialize each process workload object
+        process_workloads = []
+        for _ in range(num_processes):
+            process_workload = {
+                "group_configs": workload['group_configs'],
+                "tasks": []
+            }
+            process_workloads.append(process_workload)
+
+        # assign tasks to workers in round robin fashion
+        workload_pointer = 0
+        for task in workload['tasks']:
+            process_workloads[workload_pointer]['tasks'].append(task)
+            workload_pointer = (workload_pointer + 1) % num_processes
+
+        return process_workloads
 
     def create_tasks(self, group):
         tasks = []
@@ -59,6 +78,7 @@ class Pipeline:
         timer = Timer()
         timer.start()
         workload = self.initialize_workload(config['processing_groups'])
+        process_workloads = self.divide_workload(workload)
 
         # timer.stop()
         # elapsed_time = timer.get_time()
