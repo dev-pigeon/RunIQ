@@ -1,5 +1,6 @@
 import logging
 import ollama  # type:ignore
+from util.timer import Timer
 
 
 class ConversationBuffer:
@@ -10,6 +11,7 @@ class ConversationBuffer:
         self.model = "mistral"
         self.logger = logging.getLogger(__name__)
         self.prompt_template = summerization_prompt_template
+        self.timer = Timer()
 
     def add_turn(self, query, response):
         entry = self.format_entry(query, response)
@@ -30,10 +32,14 @@ class ConversationBuffer:
         context_to_summarize = self.summary + "\n" + "\n".join(self.history)
         self.logger.info(
             f"Calling summarizer with current context of {len(self.history)} turns")
+        self.timer.start()
         prompt = self.prompt_template.format(
             context_to_summarize=context_to_summarize)
         new_summary = ollama.generate(model=self.model, prompt=prompt)
+        self.timer.stop()
         self.summary = new_summary['response']
+        self.logger.info(
+            f"Finished summarizing conversation in {self.timer.get_time():.3f} seconds.")
 
     def to_string(self):
         history_string = ""

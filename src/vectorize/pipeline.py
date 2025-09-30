@@ -5,6 +5,7 @@ from vectorize.process_html import HTMLProcessor
 from vectorize.chunker import Chunker
 from vectorize.ingestor import Ingestor
 from vectorize.vectorizer import Vectorizer
+from util.timer import Timer
 from sentence_transformers import SentenceTransformer  # type: ignore
 import os
 
@@ -35,10 +36,12 @@ class Pipeline:
                           chunk_overlap_percent=chunker_config['overlap_percent'], chunking_strategy=chunker_config['strategy'])
         ingestor = Ingestor()
         vectorizer = Vectorizer()
+        timer = Timer()
         model_name = config['model']
         logger.debug(f"Loading model {model_name}")
         model = SentenceTransformer(config['model'])
 
+        timer.start()
         for group in config['processing_groups']:
             # process files
             logger.info(f"Sending files from {group['source']} for processing")
@@ -56,7 +59,10 @@ class Pipeline:
                 chunks = chunker.chunk_file(data)
                 vectorizer.embed_and_insert(chunks, ingestor, model)
 
-        logger.info("Finished with vectorization pipeline.")
+        timer.stop()
+        elapsed_time = timer.get_time()
+        logger.info(
+            f"Finished with vectorization pipeline in {elapsed_time:.3f} seconds")
 
 
 if __name__ == "__main__":
