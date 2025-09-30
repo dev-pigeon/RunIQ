@@ -1,11 +1,16 @@
 import logging
+from multiprocessing import Process, Queue
+import util.db as db
 
 
-class Ingestor:
-    def __init__(self) -> None:
+class Ingestor(Process):
+    def __init__(self, input_queue: Queue, collection_name) -> None:
+        super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.MAX_BUFFER_SIZE = 100
+        self.MAX_BUFFER_SIZE = 250
         self.buffer = []
+        self.input_queue = input_queue
+        self.collection_name = collection_name
 
     def process_chunk(self, chunk, collection):
         self.buffer.append(chunk)
@@ -42,3 +47,13 @@ class Ingestor:
             metadatas=parameters['metas'],
             embeddings=parameters['embeddings']
         )
+
+    def run(self):
+        client = db.get_chroma_client()
+        collection = db.get_chroma_collection(client, self.collection_name)
+        while True:
+            while not self.input_queue.empty():
+                self.buffer.extend(self.input_queue.get())
+                if len(self.buffer) >= self.MAX_BUFFER_SIZE:
+                    self.flush_buffer(collection)
+            # if this condition is not true then look into how I would just sleep / wait
