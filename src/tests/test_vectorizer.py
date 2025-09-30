@@ -19,7 +19,7 @@ def sample_chunks():
 def test_vectorize_chunk_sets_embeddings(sample_chunks, mocker):
     fake_model = mocker.Mock()
     fake_model.encode.return_value = np.array([0.1, 0.2, 0.3])
-    v = Vectorizer()
+    v = Vectorizer("test vectorizer")
 
     chunk = sample_chunks[0].copy()
     result = v.vectorize_chunk(chunk, fake_model)
@@ -34,7 +34,7 @@ def test_embed_and_insert_calls_ingestor(sample_chunks, mocker):
 
     fake_ingestor = mocker.Mock()
     mock_model = mocker.Mock()
-    v = Vectorizer()
+    v = Vectorizer("test vectorizer")
     v.embed_and_insert(sample_chunks, fake_ingestor, mock_model)
 
     # assert methods are called
