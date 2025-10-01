@@ -10,6 +10,8 @@ I used to be a competitive cross-country runner with accesss to resources such a
 ### Ingestion Pipeline
 The ingestion pipeline processes a list of  XML sitemapts to extract all relevant download links from each site. Once the links are collected, the corresponding HTML pages are downloaded and saved locally. 
 
+<br>
+
 ### Embedding Pipeline
 The entry point to this pipeline generates and distributes a task list across a pool of worker processes. Each worker is responsible for handling a subset of the previously downloaded HTML content end to end.
 Once a worker receives its respsective task list, it will parse the HTML into JSON, store the JSON for intermediate persistence, process the JSON into chunks, embed the chunks, and forward the embedded chunks to an ``Ingestor`` to be batch inserted into ChromaDB.
@@ -49,7 +51,9 @@ flowchart LR
     q --> I[Ingestor]
     I -- Batch Insert --> ChromaDB
 ```
-    
+
+<br>
+
 ### RAG CLI
 The Retrieval-Augmented Generation (RAG) CLI is a streamlined interface that allows for interactive querying against the embedded dataset. At its core, it includes a  *Retriever*, which embeds users queries and fetches relevant context, and a *Generator*, which uses the context to create a response.
 
@@ -58,7 +62,6 @@ Beyond these core components, two additional classes make RunIQ's system capable
 Each ``query + response`` pair is saved to the *ConversationBuffer*, which maintains recent dialogue history and produces a rolling summary of the conversation so far. The *QueryRephraser* is then able to restructure user queries to include context provided by the summary.
 
 > The ConversationBuffer & QueryRephraser follow the same logic as LangChain's ``ConversationSummaryMemory``, but were re-implemented for greater flexibility and learning value.
-
 
 
 #### Diagram
@@ -78,6 +81,8 @@ flowchart LR
     F --> G[Summarize Recent Turns]
     G --> A
 ```
+
+<br>
 
 ### Validation
 In order to ensure high quality retrieval, the system was tested against a labeled dataset and meassured using precision-at-k. This framework was used to test five different embedding models, each with 21 chunker hyperparameter variations. The final combination of chunking strategy and embedding model was selected based on highest performing average precision-at-k. 
