@@ -7,24 +7,80 @@ I used to be a competitive cross-country runner with accesss to resources such a
 
 ## Key Features & Approach ⚡️
 
-- **Data Processing** - Prepares data for user interaction and retrieval augmented generation.
-  - **Ingestion Pipeline** - Retrieves and stores raw HTML from the web.
-    - _Site Map Processing_: Parses XML sitemaps to collect all desired download links.
-    - _HTML Downloading_: Downloads raw HTML files and saves them to disk for futher processing.
-  - **Vectorization Pipeline**
-    - _Intermediate Processing_: Converts raw HTML into structured JSON representations.
-    - _Chunking_: Splits text into semantically meaningful chunks for embedding.
-    - _Embedding_: Generates vector embeddings from text chunks using the `bge-base-en-v1.5` model.
-- **RAG CLI** - Simple interactive command-line interface for querying the dataset.
+### Ingestion Pipeline
+- _Site Map Processing_: Parses XML sitemaps to collect all desired download links.
+- _HTML Downloading_: Downloads raw HTML files and saves them to disk for futher processing.
+
+### Embedding Pipeline
+- _Intermediate Processing_: Converts raw HTML into structured JSON representations.
+- _Chunking_: Splits text into semantically meaningful chunks for embedding.
+- _Embedding_: Generates vector embeddings from text chunks using the `bge-base-en-v1.5` model.
+
+#### Diagram
+```mermaid
+flowchart LR
+    A[Create Task List] --> B[Divide Tasks Among Workers]
+
+    %% Worker pipelines
+    B --> W1[Worker 1]
+    B --> W2[Worker 2]
+    B --> WN[Worker N]
+    
+    W1 --> W1S1
+    W2 --> W2S1
+    WN --> WNS1
+
+    subgraph Worker_1 [`]
+        W1S1[Parse File] --> W1S2[Generate Chunks] --> W1S3[Embed Chunks] 
+    end
+
+    subgraph Worker_2 [`]
+        W2S1[Parse File] --> W2S2[Generate Chunks] --> W2S3[Embed Chunks] 
+    end
+
+    subgraph Worker_3 [`]
+        WNS1[Parse File] --> WNS2[Generate Chunks] --> WNS3[Embed Chunks] 
+    end
+
+    W1S3 --> q[Queue]
+    W2S3 --> q
+    WNS3 --> q
+
+    q --> I[Ingestor]
+    I -- Batch Insert --> ChromaDB
+```
+    
+### RAG CLI
   - _Retriever_: Embeds the user query and fetches relevant context.
   - _Generator_: Creates a response based on retriever context.
   - _ConversationBuffer_: Maintains a rolling summary of recent conversation turns.
   - _QueryRephraser_: Rephrases the user query relative to the conversation summary.
-- **Extensibility**
+
+
+#### Diagram
+  ```mermaid
+flowchart LR
+    A[User Input Query] --> Z{Is query 'quit'?}
+    Z -- Yes --> X[Exit CLI]
+    Z -- No --> B[Process Query]
+    B --> qCheck{Is context empty?}
+    qCheck -- Yes --> C[Embed Query]
+    qCheck -- No --> C1[Rephrase Query]
+    C1 --> C
+    
+    C --> D[Retrieve Context]
+    D --> E[Generate Response]
+    E --> F[Save Turn to Buffer]
+    F --> G[Summarize Recent Turns]
+    G --> A
+```
+
+### Extensibility
   - Intermediary storage of HTML and JSON allows for the exploration of different chunk schemes and embedding models.
   - Adjust or test different chunking schemes without re-downloading data.
   - Config-driven processing enables easy addition of new sources
-- **Validation**
+
+### Validation
   - Retrieval performance evaluated using a labeled dataset and precision-at-k.
   - Tested 5 embedding models, each with 21 hyperparameter variations for chunking.
   - Optimal model + chunking combination selected based on retrieval performance.
