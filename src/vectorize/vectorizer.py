@@ -5,9 +5,9 @@ import os
 
 
 class Vectorizer:
-    def __init__(self, collection_name="") -> None:
+    def __init__(self, id, collection_name="") -> None:
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger(id)
 
     def embed_and_insert(self, chunks, ingestor: Ingestor, input_model):
         self.logger.info("Starting embed / insert process.")
@@ -21,6 +21,13 @@ class Vectorizer:
         # flush anything that might still be in the buffer
         ingestor.flush_buffer(collection)
         self.logger.info("Finished with embed / insert process.")
+
+    def embed_chunks(self, chunks, model):
+        embedded_chunks = []
+        for chunk in chunks:
+            embedded_chunk = self.vectorize_chunk(chunk, model)
+            embedded_chunks.append(embedded_chunk)
+        return embedded_chunks
 
     def vectorize_chunk(self, chunk, model):
         embedding = self.embed_text(chunk['document'], model)

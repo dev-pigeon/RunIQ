@@ -13,6 +13,11 @@ def collection(client):
     return get_chroma_collection(client, "runbot-tests")
 
 
+@pytest.fixture(autouse=True)
+def mock_queue(mocker):
+    return mocker.patch('multiprocessing.Queue')
+
+
 @pytest.fixture
 def sample_buffer():
     return [
@@ -26,8 +31,8 @@ def sample_buffer():
     ]
 
 
-def test_get_parameters(sample_buffer):
-    i = Ingestor()
+def test_get_parameters(sample_buffer, mock_queue):
+    i = Ingestor(mock_queue, "")
     i.buffer = sample_buffer  # type: ignore
     parameters = i.get_parameters()
     assert parameters['ids'] == [f"doc1-{i}" for i in range(90)]
@@ -36,16 +41,16 @@ def test_get_parameters(sample_buffer):
     assert parameters['metas'][0]['source'] == "doc1.txt"
 
 
-def test_flush_buffer_full(collection, sample_buffer):
-    i = Ingestor()
+def test_flush_buffer_full(collection, sample_buffer, mock_queue):
+    i = Ingestor(mock_queue, "")
     i.buffer = sample_buffer
     assert len(i.buffer) == 90
     i.flush_buffer(collection)
     assert len(i.buffer) == 0
 
 
-def test_flush_buffer_empty(collection):
-    i = Ingestor()
+def test_flush_buffer_empty(collection, mock_queue):
+    i = Ingestor(mock_queue, "")
     try:
         i.flush_buffer(collection)
     except ValueError:

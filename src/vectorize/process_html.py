@@ -31,7 +31,8 @@ class HTMLProcessor():
 
     def get_output_path(self, source):
         source_root = self.get_source_root(source)
-        output_path = self.config['output_path_root'] + source_root + "json"
+        output_path = self.config['intermediary_directory_root'] + \
+            source_root + "json"
         return output_path
 
     def get_source_title(self, path):
@@ -113,8 +114,9 @@ class HTMLProcessor():
 
         return table_json
 
-    def process_html_file(self, path, source):
+    def process_html_file(self, path):
         try:
+            source = self.get_source_title(path)
             ignore_classes = self.config['classes-ignore']
             with open(path, 'r', encoding='utf-8') as f:
                 html = f.read()
@@ -128,16 +130,17 @@ class HTMLProcessor():
                     table_jsons = self.process_tables(
                         soup, self.config['table_structure'], source_root)
 
-                output = {
+                intermediary_data = {
                     "source": source,
                     "paragraphs": paragraphs,
                     "tables": table_jsons
                 }
 
-                # write to output
-                output_path = self.get_output_path(
-                    source)
-                self.write_json(output, output_path)
+                output_path = self.get_output_path(source)
+                self.write_json(intermediary_data, output_path)
+
+                return intermediary_data
+
         except FileNotFoundError:
             logger.warning(f"File: {path} does not exist, moving on...")
 
@@ -147,7 +150,7 @@ class HTMLProcessor():
         for filename in os.listdir(dir_path):
             path = os.path.join(dir_path, filename)
             source = self.get_source_title(path)
-            self.process_html_file(path, source)
+            self.process_html_file(path)
 
         logger.info("Finished processing html files.")
 

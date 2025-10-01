@@ -39,7 +39,7 @@ def fake_config():
             "invalid_table_ids": ["invalid-table"]
         },
         "classes-ignore": ["ignore-me"],
-        "output_path_root": "output/test/"
+        "intermediary_directory_root": "output/test/"
     }
 
 

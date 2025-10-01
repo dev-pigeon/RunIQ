@@ -13,7 +13,7 @@ def sentences_paragraph_with_abbrev():
 
 
 def test_get_sentences_no_abbrev(sentences_paragraph_no_abbrev):
-    c = Chunker()
+    c = Chunker(id="test chunker")
     sentences = c.get_sentences(sentences_paragraph_no_abbrev)
     assert sentences[0] == "This is sentence one."
     assert sentences[1] == "What is a sentence?"
@@ -21,14 +21,14 @@ def test_get_sentences_no_abbrev(sentences_paragraph_no_abbrev):
 
 
 def test_get_sentences_with_abbrev(sentences_paragraph_with_abbrev):
-    c = Chunker()
+    c = Chunker(id="test chunker")
     sentences = c.get_sentences(sentences_paragraph_with_abbrev)
     assert sentences[0] == "This is sentence one."
     assert sentences[1] == "Dr. Young is my wife's title."
 
 
 def test_make_chunk_structure():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     text = "Fake chunker"
     chunk = c.make_chunk(text, 0, "tests")
     assert chunk['id'] == "tests-0"
@@ -38,7 +38,7 @@ def test_make_chunk_structure():
 
 
 def test_multiple_chunks():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     # each para here is 250 chars, should have 3 chunks
     data = {"paragraphs": ["aaa "*250, "bbb " *
                            250, "ccc "*250], "source": "tests"}
@@ -47,7 +47,7 @@ def test_multiple_chunks():
 
 
 def test_one_chunk():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     # each para here is 250 chars, should have 3 chunks
     data = {"paragraphs": ["aaa "*100], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
@@ -55,27 +55,27 @@ def test_one_chunk():
 
 
 def test_chunk_overlap():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     data = {"paragraphs": ["a "*200, "b "*200], "source": "tests"}
     chunks = c.chunk_paragraphs(data)
     assert chunks[0]["document"][-c.CHUNK_OVERLAP:] == chunks[1]["document"][:c.CHUNK_OVERLAP]
 
 
 def test_has_key_true():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     data = {"tables": ["t1"], "source": "tests"}
     key = "tables"
     assert c.has_key(data, key) is True
 
 
 def test_has_key_false():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     data = {"other": [{"not a": "table"}]}
     assert c.has_key(data, "tables") is False
 
 
 def test_no_paragraphs():
-    c = Chunker()
+    c = Chunker(id="test chunker")
     data = {"tables": ["t1"], "source": "tests"}
     try:
         chunks = c.chunk_paragraphs(data)
@@ -86,7 +86,7 @@ def test_no_paragraphs():
 
 def test_chunk_tables_no_tables():
     try:
-        c = Chunker()
+        c = Chunker(id="test chunker")
         data = {"other": [{"not a": "table"}], "source": "tests"}
         c.chunk_tables(data)
     except KeyError as e:
