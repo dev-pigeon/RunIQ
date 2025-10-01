@@ -8,13 +8,13 @@ I used to be a competitive cross-country runner with accesss to resources such a
 ## Key Features & Approach ⚡️
 
 ### Ingestion Pipeline
-- _Site Map Processing_: Parses XML sitemaps to collect all desired download links.
-- _HTML Downloading_: Downloads raw HTML files and saves them to disk for futher processing.
+The ingestion pipeline processes a list of  XML sitemapts to extract all relevant download links from each site. Once the links are collected, the corresponding HTML pages are downloaded and saved locally. 
 
 ### Embedding Pipeline
-- _Intermediate Processing_: Converts raw HTML into structured JSON representations.
-- _Chunking_: Splits text into semantically meaningful chunks for embedding.
-- _Embedding_: Generates vector embeddings from text chunks using the `bge-base-en-v1.5` model.
+The entry point to this pipeline generates and distributes a task list across a pool of worker processes. Each worker is responsible for handling a subset of the previously downloaded HTML content end to end.
+Once a worker receives its respsective task list, it will parse the HTML into JSON, store the JSON for intermediate persistence, process the JSON into chunks, embed the chunks, and forward the embedded chunks to an ``Ingestor`` to be batch inserted into ChromaDB.
+
+This distributed design enables higher throughput for large datasets, while the intermediate JSON storage makes it incredibly easy to test differnt chunking strategies or to swap out embedding models. 
 
 #### Diagram
 ```mermaid
@@ -51,10 +51,14 @@ flowchart LR
 ```
     
 ### RAG CLI
-  - _Retriever_: Embeds the user query and fetches relevant context.
-  - _Generator_: Creates a response based on retriever context.
-  - _ConversationBuffer_: Maintains a rolling summary of recent conversation turns.
-  - _QueryRephraser_: Rephrases the user query relative to the conversation summary.
+The Retrieval-Augmented Generation (RAG) CLI is a streamlined interface that allows for interactive querying against the embedded dataset. At its core, it includes a  *Retriever*, which embeds users queries and fetches relevant context, and a *Generator*, which uses the context to create a response.
+
+Beyond these core components, two additional classes make RunIQ's system capable of having multi-turn conversations: the *ConversationBuffer* and the *QueryRephraser*.
+
+Each ``query + response`` pair is saved to the *ConversationBuffer*, which maintains recent dialogue history and produces a rolling summary of the conversation so far. The *QueryRephraser* is then able to restructure user queries to include context provided by the summary.
+
+> The ConversationBuffer & QueryRephraser follow the same logic as LangChain's ``ConversationSummaryMemory``, but were re-implemented for greater flexibility and learning value.
+
 
 
 #### Diagram
@@ -75,25 +79,16 @@ flowchart LR
     G --> A
 ```
 
-### Extensibility
-  - Intermediary storage of HTML and JSON allows for the exploration of different chunk schemes and embedding models.
-  - Adjust or test different chunking schemes without re-downloading data.
-  - Config-driven processing enables easy addition of new sources
-
 ### Validation
-  - Retrieval performance evaluated using a labeled dataset and precision-at-k.
-  - Tested 5 embedding models, each with 21 hyperparameter variations for chunking.
-  - Optimal model + chunking combination selected based on retrieval performance.
+In order to ensure high quality retrieval, the system was tested against a labeled dataset and meassured using precision-at-k. This framework was used to test five different embedding models, each with 21 chunker hyperparameter variations. The final combination of chunking strategy and embedding model was selected based on highest performing average precision-at-k. 
 
-<br>
-
-## Validation Results 📝
+#### Validation Results 
 
 | Model            | Chunk Size |  Chunk Overlap  |   Chunk Strategy    | P@1 | P@5 | P@10 | MAP@1 | MAP@5 | MAP@10 |
 | :--------------- | :--------- | :-------------: | :-----------------: | :-: | :-: | :--: | ----- | ----- | ------ |
 | bge-base-en-v1.5 | 256        | 50 (20 percent) | Naive (token-based) | .86 | .79 | .71  | .86   | .84   | .84    |
 
-> _Note:_ This is the optimal model + scheme based on my experiments.
+> _Note:_ The above shows *only* is the optimal model + scheme based on my experiments.
 
 <br>
 
