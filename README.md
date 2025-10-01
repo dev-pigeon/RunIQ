@@ -67,5 +67,4 @@ Yes, foam rollers can help alleviate muscle soreness after exercise. This is pri
 
 ## Future Considerations 🔮
 
-- **Optimizing Ingestion**: Make processing more efficient by introducing parallel workers (and once Python3.14 comes out - threads!).
 - **Automating Ingestion**: Schedule regular updates or new data sources with minimal manual intervention.
