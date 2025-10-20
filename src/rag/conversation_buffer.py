@@ -4,7 +4,7 @@ from util.timer import Timer
 
 
 class ConversationBuffer:
-    def __init__(self, summerization_prompt_template, max_turns=3) -> None:
+    def __init__(self, summerization_prompt_template, max_turns=1) -> None:
         self.max_turns = max_turns
         self.history = []
         self.summary = ""
@@ -15,10 +15,10 @@ class ConversationBuffer:
 
     def add_turn(self, query, response):
         entry = self.format_entry(query, response)
-        if len(self.history) >= self.max_turns:
+        self.history.append(entry)
+        if len(self.history) > self.max_turns:
             self.logger.info("Evicting oldest turn")
             self.history.pop(0)
-        self.history.append(entry)
         self.summarize()
 
     def get_context(self):
