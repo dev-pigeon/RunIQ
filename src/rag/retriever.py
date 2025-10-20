@@ -11,7 +11,7 @@ import logging
 class Retriever:
     def __init__(self, collection_name="", k=5) -> None:
         self.logger = logging.getLogger(__name__)
-        self.vectorizer = Vectorizer()
+        self.vectorizer = Vectorizer(id="Retrieval-Vectorizer")
         self.k = k
         self.collection_name = os.environ['RUNBOT_CHROMA_COLLECTION'] if collection_name == "" else collection_name
 
